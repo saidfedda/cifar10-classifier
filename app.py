@@ -1,4 +1,5 @@
-# app.py - Ultimate Modern Design with Responsive Layout (FULLY FIXED)
+# app.py - ULTIMATE MODERN DESIGN WITH FIXED SIDEBAR
+# Fully responsive with glass morphism, smooth animations, and interactive elements
 
 import streamlit as st
 import torch
@@ -6,7 +7,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 from PIL import Image
-import matplotlib.pyplot as plt
 import json
 import numpy as np
 from datetime import datetime
@@ -17,21 +17,22 @@ import os
 # ============================================
 
 st.set_page_config(
-    page_title="CIFAR-10 Vision AI",
+    page_title="CIFAR-10 Vision AI | Advanced Image Classifier",
     page_icon="🎨",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"  # يبدأ مفتوحاً، لكن يمكن إغلاقه
 )
 
 # ============================================
-# CUSTOM CSS - MODERN & RESPONSIVE
+# CUSTOM CSS - DARKER THEME + GLASS EFFECTS
 # ============================================
 
 st.markdown("""
 <style>
-    /* Import modern font */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    /* Import modern fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap');
     
+    /* Global styles */
     * {
         font-family: 'Inter', sans-serif;
     }
@@ -41,162 +42,212 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Main container */
+    /* Main container - darker background */
     .stApp {
-        background: linear-gradient(135deg, #0a0818 0%, #1a1540 40%, #0d1b3e 100%);
-        min-height: 100vh;
-    }
-
-    /* Animated background particles effect via pseudo-element */
-    .stApp::before {
-        content: '';
-        position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background:
-            radial-gradient(ellipse at 20% 50%, rgba(120, 80, 255, 0.08) 0%, transparent 60%),
-            radial-gradient(ellipse at 80% 20%, rgba(168, 237, 234, 0.06) 0%, transparent 50%),
-            radial-gradient(ellipse at 60% 80%, rgba(254, 214, 227, 0.05) 0%, transparent 50%);
-        pointer-events: none;
-        z-index: 0;
-    }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
-    ::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #a8edea, #fed6e3);
-        border-radius: 10px;
+        background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
+        background-attachment: fixed;
     }
     
-    /* Glass morphism card */
+    /* Sidebar styling - مع إبقاء الزر */
+    [data-testid="stSidebar"] {
+        background: rgba(5, 5, 10, 0.98) !important;
+        backdrop-filter: blur(15px) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    /* تخصيص زر إظهار/إخفاء الشريط الجانبي */
+    [data-testid="stSidebarCollapsedControl"] {
+        background: rgba(100, 150, 150, 0.2) !important;
+        border-radius: 0 10px 10px 0 !important;
+    }
+    
+    [data-testid="stSidebarCollapsedControl"]:hover {
+        background: rgba(100, 150, 150, 0.4) !important;
+    }
+    
+    /* Glass morphism card - enhanced mirror effect */
     .glass-card {
-        background: rgba(255, 255, 255, 0.06);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-radius: 24px;
-        padding: 2rem;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow:
-            0 8px 32px rgba(0, 0, 0, 0.3),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        background: rgba(10, 10, 20, 0.6);
+        backdrop-filter: blur(12px) brightness(1.1);
+        border-radius: 28px;
+        padding: 1.5rem;
+        border: 1px solid rgba(168, 237, 234, 0.15);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        transition: all 0.4s ease;
         position: relative;
         overflow: hidden;
     }
-
+    
     .glass-card::before {
         content: '';
         position: absolute;
-        top: 0; left: 0; right: 0;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(168, 237, 234, 0.08), transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .glass-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
         height: 1px;
-        background: linear-gradient(90deg,
-            transparent,
-            rgba(168, 237, 234, 0.4),
-            rgba(254, 214, 227, 0.4),
-            transparent);
+        background: linear-gradient(90deg, transparent, rgba(168, 237, 234, 0.3), transparent);
+    }
+    
+    .glass-card:hover::before {
+        left: 100%;
     }
     
     .glass-card:hover {
-        transform: translateY(-6px);
-        border-color: rgba(168, 237, 234, 0.2);
-        box-shadow:
-            0 20px 60px rgba(0, 0, 0, 0.4),
-            0 0 40px rgba(168, 237, 234, 0.06),
-            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        transform: translateY(-4px);
+        border-color: rgba(168, 237, 234, 0.25);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     }
     
     /* Hero section */
     .hero {
         text-align: center;
-        padding: 3rem 0 1.5rem 0;
-        position: relative;
+        padding: 1rem 0 0.5rem 0;
+        animation: fadeInDown 0.8s ease-out;
     }
-
-    .hero-badge {
-        display: inline-block;
-        padding: 0.35rem 1rem;
-        background: rgba(168, 237, 234, 0.1);
-        border: 1px solid rgba(168, 237, 234, 0.25);
-        border-radius: 30px;
-        font-size: 0.72rem;
-        color: #a8edea;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        font-weight: 600;
-        margin-bottom: 1.2rem;
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
     
     .hero-title {
-        font-size: 4rem;
+        font-size: 3rem;
         font-weight: 800;
-        background: linear-gradient(135deg, #a8edea 0%, #c9b8ff 50%, #fed6e3 100%);
+        background: linear-gradient(135deg, #8ec5c2 0%, #e8b8c4 50%, #ffc896 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        margin-bottom: 0.8rem;
-        letter-spacing: -0.03em;
-        line-height: 1.1;
-        text-shadow: none;
+        margin-bottom: 0.2rem;
+        letter-spacing: -0.02em;
+        animation: gradientShift 3s ease infinite;
+        background-size: 200% 200%;
+    }
+    
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
     }
     
     .hero-subtitle {
-        font-size: 1.05rem;
-        color: rgba(255, 255, 255, 0.55);
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.4);
         font-weight: 400;
-        letter-spacing: 0.01em;
     }
-
-    /* Divider */
-    .hero-divider {
-        width: 60px;
-        height: 3px;
-        background: linear-gradient(90deg, #a8edea, #fed6e3);
-        border-radius: 3px;
-        margin: 1.5rem auto 0;
-        opacity: 0.6;
+    
+    /* تكبير عنوان visual intelligence على الهاتف فقط */
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.2rem !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .hero-title {
+            font-size: 1.8rem !important;
+        }
+    }
+    
+    /* Section headers */
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(168, 237, 234, 0.15);
+    }
+    
+    .section-icon {
+        font-size: 1.3rem;
+        filter: drop-shadow(0 0 5px rgba(168, 237, 234, 0.3));
+    }
+    
+    .section-title {
+        font-weight: 700;
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .section-subtitle {
+        font-size: 0.65rem;
+        color: rgba(255, 255, 255, 0.35);
     }
     
     /* Result card */
     .result-card {
-        background: linear-gradient(135deg,
-            rgba(168, 237, 234, 0.12),
-            rgba(201, 184, 255, 0.08),
-            rgba(254, 214, 227, 0.12));
+        background: linear-gradient(135deg, rgba(100, 150, 150, 0.15), rgba(200, 150, 160, 0.1));
         backdrop-filter: blur(12px);
-        border-radius: 20px;
-        padding: 1.8rem 1.5rem;
+        border-radius: 28px;
+        padding: 1.2rem;
         text-align: center;
-        border: 1px solid rgba(168, 237, 234, 0.25);
-        margin-bottom: 1.2rem;
+        border: 1px solid rgba(168, 237, 234, 0.2);
+        margin-bottom: 1rem;
+        animation: slideInUp 0.6s ease-out;
         position: relative;
         overflow: hidden;
     }
-
+    
     .result-card::after {
         content: '';
         position: absolute;
-        bottom: 0; left: 0; right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, #a8edea, #c9b8ff, #fed6e3);
-        border-radius: 0 0 20px 20px;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(168, 237, 234, 0.05) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .result-card:hover::after {
+        opacity: 1;
+    }
+    
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
     
     .prediction {
-        font-size: 2.5rem;
+        font-size: 1.8rem;
         font-weight: 800;
-        background: linear-gradient(135deg, #a8edea, #c9b8ff);
+        background: linear-gradient(135deg, #8ec5c2, #e8b8c4);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
         margin: 0;
-        letter-spacing: -0.02em;
     }
     
     .confidence {
-        font-size: 0.95rem;
-        color: rgba(255, 255, 255, 0.65);
-        margin-top: 0.6rem;
-        font-weight: 400;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-top: 0.4rem;
+        font-weight: 500;
     }
     
     /* Metric cards */
@@ -208,237 +259,195 @@ st.markdown("""
     }
     
     .metric-item {
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 16px;
-        padding: 1rem 0.8rem;
+        background: rgba(15, 15, 30, 0.6);
+        border-radius: 20px;
+        padding: 0.6rem;
         text-align: center;
-        transition: all 0.25s ease;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(168, 237, 234, 0.08);
+        backdrop-filter: blur(5px);
     }
     
     .metric-item:hover {
-        background: rgba(168, 237, 234, 0.08);
+        background: rgba(30, 30, 50, 0.7);
+        transform: translateY(-3px);
         border-color: rgba(168, 237, 234, 0.2);
-        transform: translateY(-2px);
     }
     
     .metric-value {
-        font-size: 1.4rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, #a8edea, #fed6e3);
+        font-size: 1.3rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #8ec5c2, #e8b8c4);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        line-height: 1.2;
     }
     
     .metric-label {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         color: rgba(255, 255, 255, 0.45);
         text-transform: uppercase;
-        letter-spacing: 1.5px;
-        margin-top: 0.4rem;
-        font-weight: 500;
+        letter-spacing: 1px;
+        margin-top: 0.2rem;
     }
     
     /* Upload area */
     .upload-area {
-        border: 2px dashed rgba(168, 237, 234, 0.5);
+        border: 2px dashed rgba(168, 237, 234, 0.3);
         border-radius: 24px;
-        padding: 1.5rem;
+        padding: 1.2rem;
         text-align: center;
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(10, 10, 20, 0.4);
         transition: all 0.3s ease;
-        cursor: pointer;
     }
     
     .upload-area:hover {
-        border-color: #a8edea;
-        background: rgba(168, 237, 234, 0.05);
+        border-color: #8ec5c2;
+        background: rgba(100, 150, 150, 0.08);
+        box-shadow: 0 0 30px rgba(100, 150, 150, 0.1);
     }
     
     /* Image container */
     .image-container {
-        border-radius: 16px;
+        border-radius: 20px;
         overflow: hidden;
-        background: rgba(0, 0, 0, 0.3);
-        margin-top: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        background: rgba(0, 0, 0, 0.5);
+        margin-top: 0.8rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
     }
     
-    /* Info badges */
+    /* Badge styles */
     .badge {
         display: inline-block;
-        padding: 0.3rem 0.9rem;
+        padding: 0.2rem 0.6rem;
         border-radius: 20px;
-        font-size: 0.7rem;
-        font-weight: 600;
-        margin: 0.25rem;
-        letter-spacing: 0.3px;
+        font-size: 0.6rem;
+        font-weight: 500;
+        margin: 0.15rem;
+        background: rgba(100, 150, 150, 0.15);
+        color: #8ec5c2;
+        border: 1px solid rgba(100, 150, 150, 0.2);
     }
     
-    .badge-primary {
-        background: rgba(168, 237, 234, 0.12);
-        color: #a8edea;
-        border: 1px solid rgba(168, 237, 234, 0.25);
-    }
-    
-    /* Feature grid */
+    /* Features grid */
     .features {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
-        margin: 2rem 0;
+        gap: 0.8rem;
+        margin: 1rem 0;
     }
     
     .feature-item {
         text-align: center;
-        padding: 1.3rem 1rem;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 0.7rem;
+        background: rgba(15, 15, 30, 0.5);
         border-radius: 20px;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .feature-item::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 1px;
-        background: linear-gradient(90deg,
-            transparent,
-            rgba(168, 237, 234, 0.3),
-            transparent);
-        opacity: 0;
-        transition: opacity 0.3s ease;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(168, 237, 234, 0.05);
+        backdrop-filter: blur(5px);
     }
     
     .feature-item:hover {
-        background: rgba(168, 237, 234, 0.05);
+        background: rgba(30, 30, 50, 0.6);
+        transform: translateY(-3px);
         border-color: rgba(168, 237, 234, 0.15);
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
-
-    .feature-item:hover::before {
-        opacity: 1;
     }
     
     .feature-icon {
-        font-size: 2.2rem;
-        margin-bottom: 0.6rem;
-        display: block;
+        font-size: 1.3rem;
+        margin-bottom: 0.2rem;
+        display: inline-block;
+        filter: drop-shadow(0 0 3px rgba(100, 150, 150, 0.3));
     }
     
     .feature-title {
-        font-size: 0.85rem;
+        font-size: 0.7rem;
         font-weight: 700;
-        color: rgba(255, 255, 255, 0.9);
-        margin-bottom: 0.3rem;
-        letter-spacing: 0.01em;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 0.1rem;
     }
     
     .feature-desc {
-        font-size: 0.7rem;
-        color: rgba(255, 255, 255, 0.4);
-        line-height: 1.4;
+        font-size: 0.55rem;
+        color: rgba(255, 255, 255, 0.35);
     }
     
-    /* Sidebar styling */
-    [data-testid="stSidebar"] {
-        background: rgba(10, 8, 24, 0.97);
-        backdrop-filter: blur(20px);
-        border-right: 1px solid rgba(255, 255, 255, 0.06);
-    }
-    
-    [data-testid="stSidebar"] .stMarkdown {
-        color: rgba(255, 255, 255, 0.8);
-    }
-    
-    /* Progress bar customization */
+    /* Progress bar */
     .stProgress > div > div {
-        background: linear-gradient(90deg, #a8edea, #c9b8ff, #fed6e3);
-        border-radius: 20px;
-        box-shadow: 0 0 10px rgba(168, 237, 234, 0.3);
-    }
-
-    .stProgress > div {
-        background: rgba(255, 255, 255, 0.06);
+        background: linear-gradient(90deg, #8ec5c2, #e8b8c4);
         border-radius: 20px;
     }
     
-    /* Button styling */
+    /* Button */
     .stButton > button {
-        background: linear-gradient(135deg, #a8edea, #c9b8ff, #fed6e3);
-        color: #0f0c29;
+        background: linear-gradient(135deg, #8ec5c2, #e8b8c4);
+        color: #0a0a0f;
         border: none;
         border-radius: 40px;
-        padding: 0.6rem 1.5rem;
-        font-weight: 700;
-        font-size: 0.9rem;
+        padding: 0.4rem 1rem;
+        font-weight: 600;
+        font-size: 0.8rem;
         transition: all 0.3s ease;
         width: 100%;
-        letter-spacing: 0.02em;
-        box-shadow: 0 4px 15px rgba(168, 237, 234, 0.2);
     }
     
     .stButton > button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(168, 237, 234, 0.35);
-        filter: brightness(1.05);
+        box-shadow: 0 5px 20px rgba(100, 150, 150, 0.4);
     }
-
-    .stButton > button:active {
-        transform: translateY(0);
+    
+    /* File uploader */
+    .stFileUploader {
+        width: 100%;
     }
     
     /* Footer */
     .footer {
         text-align: center;
-        padding: 2rem;
-        color: rgba(255, 255, 255, 0.3);
-        font-size: 0.75rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        margin-top: 2rem;
-        letter-spacing: 0.05em;
+        padding: 1rem;
+        color: rgba(255, 255, 255, 0.2);
+        font-size: 0.65rem;
+        border-top: 1px solid rgba(168, 237, 234, 0.05);
+        margin-top: 1rem;
     }
     
-    /* Responsive design */
+    /* Responsive */
+    @media (max-width: 992px) {
+        .hero-title { font-size: 2.5rem; }
+        .prediction { font-size: 1.4rem; }
+        .metric-value { font-size: 1.1rem; }
+    }
+    
     @media (max-width: 768px) {
-        .hero-title {
-            font-size: 2rem;
-        }
-        
-        .prediction {
-            font-size: 1.5rem;
-        }
-        
-        .features {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.8rem;
-        }
-        
-        .glass-card {
-            padding: 1rem;
-        }
-        
-        .metric-grid {
-            gap: 0.5rem;
-        }
+        .hero-title { font-size: 1.8rem; }
+        .hero-subtitle { font-size: 0.7rem; }
+        .prediction { font-size: 1.1rem; }
+        .features { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+        .glass-card { padding: 0.8rem; }
+        .metric-grid { gap: 0.4rem; }
     }
     
     @media (max-width: 480px) {
-        .features {
-            grid-template-columns: 1fr;
-        }
+        .hero-title { font-size: 1.4rem; }
+        .prediction { font-size: 1rem; }
+        .features { grid-template-columns: 1fr; }
+        .metric-grid { grid-template-columns: 1fr; gap: 0.4rem; }
     }
     
-    /* Custom file uploader */
-    .stFileUploader {
-        width: 100%;
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #8ec5c2, #e8b8c4);
+        border-radius: 10px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -449,8 +458,22 @@ st.markdown("""
 
 CIFAR_MEAN = (0.4914, 0.4822, 0.4465)
 CIFAR_STD = (0.2470, 0.2435, 0.2616)
-CLASSES = ['🛩️ Plane', '🚗 Car', '🐦 Bird', '🐱 Cat', '🦌 Deer', 
-           '🐕 Dog', '🐸 Frog', '🐴 Horse', '🚢 Ship', '🚛 Truck']
+
+# Enhanced class names with emojis and descriptions
+CLASSES = [
+    {'name': 'Plane', 'emoji': '✈️', 'desc': 'Aircraft / Airplane', 'color': '#8ec5c2'},
+    {'name': 'Car', 'emoji': '🚗', 'desc': 'Automobile / Sedan', 'color': '#90ee90'},
+    {'name': 'Bird', 'emoji': '🐦', 'desc': 'Bird species', 'color': '#ffb347'},
+    {'name': 'Cat', 'emoji': '🐱', 'desc': 'Feline / Cat', 'color': '#ff6b6b'},
+    {'name': 'Deer', 'emoji': '🦌', 'desc': 'Wild deer', 'color': '#d4a5a5'},
+    {'name': 'Dog', 'emoji': '🐕', 'desc': 'Canine / Dog', 'color': '#c9a0dc'},
+    {'name': 'Frog', 'emoji': '🐸', 'desc': 'Amphibian / Frog', 'color': '#7dd3fc'},
+    {'name': 'Horse', 'emoji': '🐴', 'desc': 'Equine / Horse', 'color': '#f0a3a3'},
+    {'name': 'Ship', 'emoji': '🚢', 'desc': 'Vessel / Ship', 'color': '#5dade2'},
+    {'name': 'Truck', 'emoji': '🚛', 'desc': 'Heavy vehicle', 'color': '#e5989b'}
+]
+
+CLASS_NAMES = [f"{c['emoji']} {c['name']}" for c in CLASSES]
 
 # ============================================
 # MODEL DEFINITIONS
@@ -589,7 +612,7 @@ class AdvancedCNN(nn.Module):
         return x
 
 # ============================================
-# LOAD MODEL
+# MODEL LOADING
 # ============================================
 
 @st.cache_resource
@@ -645,31 +668,188 @@ def preprocess_image(image):
 model, device, model_name, best_acc = load_model()
 
 # ============================================
-# SIDEBAR
+# SIDEBAR - ENHANCED WITH COMPLETE INFO
 # ============================================
 
 with st.sidebar:
-    st.markdown("### 🎯 CIFAR-10 Vision")
-    st.caption("Advanced Image Classification")
+    # Logo and title
+    st.markdown("""
+    <div style="text-align: center; padding: 0.5rem 0 1rem 0;">
+        <div style="font-size: 2rem; filter: drop-shadow(0 0 10px rgba(100,150,150,0.5));">🎨</div>
+        <div style="font-weight: 800; font-size: 1.2rem; background: linear-gradient(135deg, #8ec5c2, #e8b8c4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-top: 0.3rem;">CIFAR-10 Vision</div>
+        <div style="font-size: 0.6rem; color: rgba(255,255,255,0.35); letter-spacing: 1px;">ADVANCED CLASSIFIER</div>
+    </div>
+    """, unsafe_allow_html=True)
     
     st.markdown("---")
     
-    st.markdown("**🤖 Model**")
-    st.code(model_name, language=None)
+    # ============================================
+    # MODEL INFORMATION SECTION
+    # ============================================
+    st.markdown("""
+    <div style="margin-bottom: 0.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.8rem;">
+            <span style="font-size: 1rem;">🤖</span>
+            <span style="font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px;">MODEL INFO</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     
-    st.markdown("**📊 Accuracy**")
-    st.markdown(f"<span style='font-size: 1.8rem; font-weight: 700; color: #a8edea;'>{best_acc:.1f}%</span>", unsafe_allow_html=True)
+    # Model details grid
+    col_a, col_b = st.columns(2)
+    with col_a:
+        st.markdown(f"""
+        <div style="background: rgba(20,20,40,0.6); border-radius: 14px; padding: 0.5rem; text-align: center; border: 1px solid rgba(100,150,150,0.15);">
+            <div style="font-size: 0.5rem; color: rgba(255,255,255,0.35);">ARCHITECTURE</div>
+            <div style="font-weight: 700; font-size: 0.75rem; color: #8ec5c2;">{model_name}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with col_b:
+        st.markdown(f"""
+        <div style="background: rgba(20,20,40,0.6); border-radius: 14px; padding: 0.5rem; text-align: center; border: 1px solid rgba(100,150,150,0.15);">
+            <div style="font-size: 0.5rem; color: rgba(255,255,255,0.35);">ACCURACY</div>
+            <div style="font-weight: 700; font-size: 0.75rem; color: #8ec5c2;">{best_acc:.1f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div style="background: rgba(20,20,40,0.4); border-radius: 14px; padding: 0.5rem; margin-top: 0.5rem; border: 1px solid rgba(100,150,150,0.1);">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.2rem;">
+            <span style="font-size: 0.6rem; color: rgba(255,255,255,0.4);">Parameters</span>
+            <span style="font-size: 0.6rem; color: #8ec5c2;">~11.2M</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.2rem;">
+            <span style="font-size: 0.6rem; color: rgba(255,255,255,0.4);">Layers</span>
+            <span style="font-size: 0.6rem; color: #8ec5c2;">ResNet-18 Style</span>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+            <span style="font-size: 0.6rem; color: rgba(255,255,255,0.4);">Framework</span>
+            <span style="font-size: 0.6rem; color: #8ec5c2;">PyTorch</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     
     st.markdown("---")
     
-    st.markdown("**📋 Classes**")
-    cols = st.columns(2)
-    for i, cls in enumerate(CLASSES):
-        cols[i%2].markdown(f"- {cls}")
+    # ============================================
+    # SUPPORTED CLASSES SECTION
+    # ============================================
+    st.markdown("""
+    <div style="margin-bottom: 0.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.8rem;">
+            <span style="font-size: 1rem;">📋</span>
+            <span style="font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px;">SUPPORTED CLASSES</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Display classes in two columns
+    for i in range(0, len(CLASSES), 2):
+        cols = st.columns(2)
+        for j, col in enumerate(cols):
+            if i + j < len(CLASSES):
+                cls = CLASSES[i + j]
+                col.markdown(f"""
+                <div style="background: rgba(100,100,150,0.08); border-radius: 10px; padding: 0.2rem 0.4rem; margin: 0.2rem 0; border-left: 2px solid {cls['color']};">
+                    <span style="font-size: 0.8rem;">{cls['emoji']}</span>
+                    <span style="font-size: 0.65rem; font-weight: 500; margin-left: 0.2rem;">{cls['name']}</span>
+                    <span style="font-size: 0.5rem; color: rgba(255,255,255,0.35); display: block;">{cls['desc']}</span>
+                </div>
+                """, unsafe_allow_html=True)
     
     st.markdown("---")
     
-    st.caption(f"PyTorch • Streamlit\n{datetime.now().year}")
+    # ============================================
+    # DATASET SPECIFICATIONS SECTION
+    # ============================================
+    st.markdown("""
+    <div style="margin-bottom: 0.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.8rem;">
+            <span style="font-size: 1rem;">📊</span>
+            <span style="font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px;">DATASET SPECS</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Dataset specs grid
+    spec_col1, spec_col2, spec_col3 = st.columns(3)
+    with spec_col1:
+        st.markdown("""
+        <div style="background: rgba(20,20,40,0.6); border-radius: 12px; padding: 0.4rem; text-align: center;">
+            <div style="font-size: 0.9rem;">50K</div>
+            <div style="font-size: 0.5rem; color: rgba(255,255,255,0.35);">TRAIN</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with spec_col2:
+        st.markdown("""
+        <div style="background: rgba(20,20,40,0.6); border-radius: 12px; padding: 0.4rem; text-align: center;">
+            <div style="font-size: 0.9rem;">10K</div>
+            <div style="font-size: 0.5rem; color: rgba(255,255,255,0.35);">TEST</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with spec_col3:
+        st.markdown("""
+        <div style="background: rgba(20,20,40,0.6); border-radius: 12px; padding: 0.4rem; text-align: center;">
+            <div style="font-size: 0.9rem;">32²</div>
+            <div style="font-size: 0.5rem; color: rgba(255,255,255,0.35);">SIZE</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div style="background: rgba(20,20,40,0.4); border-radius: 14px; padding: 0.5rem; margin-top: 0.5rem; border: 1px solid rgba(100,150,150,0.1);">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.2rem;">
+            <span style="font-size: 0.55rem; color: rgba(255,255,255,0.35);">Color Channels</span>
+            <span style="font-size: 0.55rem; color: #8ec5c2;">RGB (3)</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.2rem;">
+            <span style="font-size: 0.55rem; color: rgba(255,255,255,0.35);">Image Format</span>
+            <span style="font-size: 0.55rem; color: #8ec5c2;">32×32 Pixels</span>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+            <span style="font-size: 0.55rem; color: rgba(255,255,255,0.35);">Normalization</span>
+            <span style="font-size: 0.55rem; color: #8ec5c2;">Mean + Std</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # ============================================
+    # TECHNOLOGY STACK
+    # ============================================
+    st.markdown("""
+    <div style="margin-bottom: 0.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.8rem;">
+            <span style="font-size: 1rem;">⚡</span>
+            <span style="font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px;">TECH STACK</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    tech_col1, tech_col2 = st.columns(2)
+    with tech_col1:
+        st.markdown("""
+        <div style="background: rgba(20,20,40,0.5); border-radius: 10px; padding: 0.3rem; text-align: center; margin: 0.2rem 0;">
+            <div style="font-size: 0.6rem;">PyTorch</div>
+        </div>
+        <div style="background: rgba(20,20,40,0.5); border-radius: 10px; padding: 0.3rem; text-align: center; margin: 0.2rem 0;">
+            <div style="font-size: 0.6rem;">Streamlit</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with tech_col2:
+        st.markdown("""
+        <div style="background: rgba(20,20,40,0.5); border-radius: 10px; padding: 0.3rem; text-align: center; margin: 0.2rem 0;">
+            <div style="font-size: 0.6rem;">CUDA</div>
+        </div>
+        <div style="background: rgba(20,20,40,0.5); border-radius: 10px; padding: 0.3rem; text-align: center; margin: 0.2rem 0;">
+            <div style="font-size: 0.6rem;">Matplotlib</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # Footer in sidebar
+    st.caption(f"⚡ Real-time Inference\n📅 {datetime.now().strftime('%B %Y')}")
 
 # ============================================
 # MAIN CONTENT
@@ -678,10 +858,8 @@ with st.sidebar:
 # Hero Section
 st.markdown("""
 <div class="hero">
-    <div class="hero-badge">✦ AI POWERED</div>
     <div class="hero-title">visual intelligence</div>
-    <div class="hero-subtitle">CIFAR-10 image classification with deep learning</div>
-    <div class="hero-divider"></div>
+    <div class="hero-subtitle">advanced deep learning for CIFAR-10 image classification</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -689,9 +867,16 @@ st.markdown("""
 col_left, col_right = st.columns([1, 1], gap="large")
 
 with col_left:
-    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    st.markdown("#### 📸 Upload")
-    st.caption("supported formats: JPG, PNG, JPEG")
+    st.markdown("""
+    <div class="glass-card">
+        <div class="section-header">
+            <span class="section-icon">📸</span>
+            <div>
+                <div class="section-title">Upload Image</div>
+                <div class="section-subtitle">Supported: JPG, PNG, JPEG</div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
     
     uploaded = st.file_uploader("", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
     
@@ -702,20 +887,32 @@ with col_left:
         st.image(image, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
         
-        # Image info badges
-        c1, c2, c3 = st.columns(3)
-        c1.markdown(f'<span class="badge badge-primary">📏 {image.size[0]}px</span>', unsafe_allow_html=True)
-        c2.markdown(f'<span class="badge badge-primary">📐 {image.size[1]}px</span>', unsafe_allow_html=True)
-        c3.markdown(f'<span class="badge badge-primary">🎨 {image.mode}</span>', unsafe_allow_html=True)
+        # Image info
+        file_size = len(uploaded.getvalue()) / 1024
+        st.markdown(f"""
+        <div style="display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.6rem;">
+            <span class="badge">📏 {image.size[0]}×{image.size[1]}px</span>
+            <span class="badge">💾 {file_size:.1f} KB</span>
+            <span class="badge">🎨 {image.mode}</span>
+        </div>
+        """, unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
 
 with col_right:
-    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    st.markdown("#### 🎯 Result")
+    st.markdown("""
+    <div class="glass-card">
+        <div class="section-header">
+            <span class="section-icon">🎯</span>
+            <div>
+                <div class="section-title">Prediction Result</div>
+                <div class="section-subtitle">Real-time AI inference</div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
     
     if uploaded:
-        with st.spinner("analyzing..."):
+        with st.spinner("Analyzing image..."):
             tensor = preprocess_image(image).to(device)
             with torch.no_grad():
                 out = model(tensor)
@@ -724,16 +921,18 @@ with col_right:
                 conf = probs[0][pred].item()
                 all_probs = probs[0].cpu().numpy()
         
-        # Result card
+        predicted_class = CLASSES[pred]
         st.markdown(f"""
         <div class="result-card">
-            <div class="prediction">{CLASSES[pred]}</div>
-            <div class="confidence">confidence {conf*100:.1f}%</div>
+            <div style="font-size: 2.2rem; margin-bottom: 0.2rem;">{predicted_class['emoji']}</div>
+            <div class="prediction">{predicted_class['name']}</div>
+            <div class="confidence">confidence {conf*100:.2f}%</div>
+            <div style="font-size: 0.6rem; color: rgba(255,255,255,0.35); margin-top: 0.15rem;">{predicted_class['desc']}</div>
         </div>
         """, unsafe_allow_html=True)
         
-        # Confidence bar
-        st.markdown("#### confidence")
+        # Confidence gauge
+        st.markdown("#### Confidence")
         st.progress(conf)
         
         # Metrics
@@ -742,111 +941,128 @@ with col_right:
         m1, m2, m3 = st.columns(3)
         m1.markdown(f"""
         <div class="metric-item">
-            <div class="metric-value">{conf*100:.0f}%</div>
-            <div class="metric-label">confidence</div>
+            <div class="metric-value">{conf*100:.1f}%</div>
+            <div class="metric-label">Confidence</div>
         </div>
         """, unsafe_allow_html=True)
         m2.markdown(f"""
         <div class="metric-item">
-            <div class="metric-value">{model_name}</div>
-            <div class="metric-label">architecture</div>
+            <div class="metric-value">{model_name.split('_')[0]}</div>
+            <div class="metric-label">Architecture</div>
         </div>
         """, unsafe_allow_html=True)
         m3.markdown(f"""
         <div class="metric-item">
-            <div class="metric-value">{best_acc:.0f}%</div>
-            <div class="metric-label">model acc</div>
+            <div class="metric-value">{best_acc:.1f}%</div>
+            <div class="metric-label">Model Acc</div>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown('</div>', unsafe_allow_html=True)
         
-        # Probability chart - FIXED VERSION
-        st.markdown("#### probabilities")
-        fig, ax = plt.subplots(figsize=(8, 3.5))
+        # ============================================
+        # TOP 3 PREDICTIONS
+        # ============================================
+        st.markdown("#### 🏆 Top 3 Predictions")
         
-        # Simple colors that always work
-        bar_colors = []
-        for i in range(10):
-            if i == pred:
-                bar_colors.append('#a8edea')
-            else:
-                bar_colors.append('#4a4a6a')
+        # Get top 3 indices
+        top_3_indices = np.argsort(all_probs)[-3:][::-1]
         
-        bars = ax.barh(CLASSES, all_probs * 100, color=bar_colors, height=0.6)
-        ax.set_xlim(0, 100)
-        ax.set_xlabel('%', fontsize=9)
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.spines['left'].set_color('gray')
-        ax.spines['bottom'].set_color('gray')
-        ax.tick_params(axis='y', labelsize=9)
-        ax.tick_params(axis='x', labelsize=8)
+        # Display top 3 predictions
+        for rank, idx in enumerate(top_3_indices, 1):
+            cls = CLASSES[idx]
+            prob_val = all_probs[idx] * 100
+            medal = ['🥇', '🥈', '🥉'][rank-1]
+            
+            st.markdown(f"""
+            <div style="background: rgba(20,20,40,0.6); border-radius: 16px; padding: 0.5rem; margin: 0.4rem 0; border: 1px solid rgba(100,150,150,0.1); transition: all 0.2s ease;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.2rem;">{medal}</span>
+                        <span style="font-size: 1rem;">{cls['emoji']}</span>
+                        <span style="font-weight: 700; font-size: 0.85rem;">{cls['name']}</span>
+                    </div>
+                    <div style="font-weight: 800; font-size: 0.95rem; color: {'#8ec5c2' if rank == 1 else 'rgba(255,255,255,0.5)'};">{prob_val:.1f}%</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; height: 6px; overflow: hidden;">
+                    <div style="width: {prob_val}%; height: 100%; background: linear-gradient(90deg, {cls['color']}, #8ec5c2); border-radius: 12px;"></div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
         
-        for bar, prob in zip(bars, all_probs):
-            if prob * 100 > 5:
-                ax.text(bar.get_width() + 1, bar.get_y() + bar.get_height()/2, 
-                       f'{prob*100:.0f}%', va='center', fontsize=8, fontweight='500')
+        # Show remaining classes in expander
+        other_indices = [i for i in range(10) if i not in top_3_indices]
+        other_indices_sorted = sorted(other_indices, key=lambda x: all_probs[x], reverse=True)
         
-        plt.tight_layout()
-        st.pyplot(fig)
+        with st.expander(f"📋 Other Classes ({len(other_indices)} remaining)"):
+            for idx in other_indices_sorted:
+                cls = CLASSES[idx]
+                prob_val = all_probs[idx] * 100
+                st.markdown(f"""
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.03);">
+                    <div>
+                        <span style="font-size: 0.8rem;">{cls['emoji']}</span>
+                        <span style="font-size: 0.65rem; margin-left: 0.3rem;">{cls['name']}</span>
+                    </div>
+                    <div style="font-weight: 600; font-size: 0.65rem; color: rgba(255,255,255,0.4);">{prob_val:.1f}%</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); border-radius: 8px; height: 2px; margin: 0.1rem 0;">
+                    <div style="width: {prob_val}%; height: 100%; background: linear-gradient(90deg, {cls['color']}, #8ec5c2); border-radius: 8px;"></div>
+                </div>
+                """, unsafe_allow_html=True)
         
     else:
         st.markdown("""
-        <div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">
-            <span style="font-size: 2rem;">⬅️</span>
-            <p style="margin-top: 0.5rem;">upload an image<br>to begin</p>
+        <div style="text-align: center; padding: 1.5rem 1rem;">
+            <div style="font-size: 2.5rem; opacity: 0.3; margin-bottom: 0.5rem;">🖼️</div>
+            <div style="font-weight: 600; margin-bottom: 0.2rem; font-size: 0.9rem;">No Image Selected</div>
+            <div style="font-size: 0.65rem; color: rgba(255,255,255,0.3);">
+                Upload an image from the left panel
+            </div>
         </div>
         """, unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
 
 # Features Section
+st.markdown("""
+<div style="text-align: center; margin: 0.5rem 0 0.3rem 0;">
+    <div style="font-weight: 700; font-size: 1rem; background: linear-gradient(135deg, #8ec5c2, #e8b8c4); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Key Features</div>
+</div>
+""", unsafe_allow_html=True)
+
 st.markdown('<div class="features">', unsafe_allow_html=True)
 
-f1, f2, f3, f4 = st.columns(4)
+features = [
+    {'icon': '🧠', 'title': 'Deep Learning', 'desc': 'CNN Architecture'},
+    {'icon': '⚡', 'title': 'Real-time', 'desc': 'Fast Inference'},
+    {'icon': '🎯', 'title': 'Top-3 Focus', 'desc': 'Smart Display'},
+    {'icon': '📱', 'title': 'Responsive', 'desc': 'Mobile Ready'},
+    {'icon': '🔬', 'title': 'Advanced', 'desc': 'Transfer Learning'},
+    {'icon': '🎨', 'title': 'Modern UI', 'desc': 'Glass Design'},
+    {'icon': '🏆', 'title': 'Medal View', 'desc': 'Easy Reading'},
+    {'icon': '🛡️', 'title': 'Robust', 'desc': 'Error Handling'}
+]
 
-with f1:
-    st.markdown("""
-    <div class="feature-item">
-        <div class="feature-icon">🧠</div>
-        <div class="feature-title">Deep Learning</div>
-        <div class="feature-desc">ResNet architecture</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with f2:
-    st.markdown("""
-    <div class="feature-item">
-        <div class="feature-icon">⚡</div>
-        <div class="feature-title">Real-time</div>
-        <div class="feature-desc">Fast inference</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with f3:
-    st.markdown("""
-    <div class="feature-item">
-        <div class="feature-icon">🎯</div>
-        <div class="feature-title">Accurate</div>
-        <div class="feature-desc">89%+ accuracy</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with f4:
-    st.markdown("""
-    <div class="feature-item">
-        <div class="feature-icon">📱</div>
-        <div class="feature-title">Responsive</div>
-        <div class="feature-desc">Mobile ready</div>
-    </div>
-    """, unsafe_allow_html=True)
+for i in range(0, len(features), 4):
+    cols = st.columns(4)
+    for j, col in enumerate(cols):
+        if i + j < len(features):
+            f = features[i + j]
+            with col:
+                st.markdown(f"""
+                <div class="feature-item">
+                    <div class="feature-icon">{f['icon']}</div>
+                    <div class="feature-title">{f['title']}</div>
+                    <div class="feature-desc">{f['desc']}</div>
+                </div>
+                """, unsafe_allow_html=True)
 
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Footer
-st.markdown("""
+st.markdown(f"""
 <div class="footer">
-    <p>CIFAR-10 • ResNet Architecture • Deployed with Streamlit</p>
+    CIFAR-10 Dataset • {model_name} Architecture • Deployed with Streamlit
 </div>
 """, unsafe_allow_html=True)
