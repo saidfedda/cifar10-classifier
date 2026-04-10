@@ -31,7 +31,7 @@ st.set_page_config(
 st.markdown("""
 <style>
     /* Import modern fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&family=Space+Grotesk:wght@300..700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap');
     
     /* Global styles */
     * {
@@ -43,13 +43,13 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Main container with animated gradient */
+    /* Main container */
     .stApp {
         background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
         background-attachment: fixed;
     }
     
-    /* Glass morphism card with hover effect */
+    /* Glass morphism card */
     .glass-card {
         background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(12px);
@@ -57,24 +57,7 @@ st.markdown("""
         padding: 1.5rem;
         border: 1px solid rgba(255, 255, 255, 0.1);
         box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .glass-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
-        transition: left 0.5s ease;
-    }
-    
-    .glass-card:hover::before {
-        left: 100%;
+        transition: all 0.4s ease;
     }
     
     .glass-card:hover {
@@ -83,7 +66,7 @@ st.markdown("""
         box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
     }
     
-    /* Hero section with fade-in animation */
+    /* Hero section */
     .hero {
         text-align: center;
         padding: 1.5rem 0 1rem 0;
@@ -124,7 +107,6 @@ st.markdown("""
         font-size: 1rem;
         color: rgba(255, 255, 255, 0.5);
         font-weight: 400;
-        letter-spacing: 0.3px;
     }
     
     /* Section headers */
@@ -151,7 +133,7 @@ st.markdown("""
         color: rgba(255, 255, 255, 0.4);
     }
     
-    /* Result card with pulse animation */
+    /* Result card */
     .result-card {
         background: linear-gradient(135deg, rgba(168, 237, 234, 0.15), rgba(254, 214, 227, 0.15));
         backdrop-filter: blur(12px);
@@ -161,8 +143,6 @@ st.markdown("""
         border: 1px solid rgba(168, 237, 234, 0.3);
         margin-bottom: 1rem;
         animation: slideInUp 0.6s ease-out;
-        position: relative;
-        overflow: hidden;
     }
     
     @keyframes slideInUp {
@@ -184,7 +164,6 @@ st.markdown("""
         -webkit-text-fill-color: transparent;
         background-clip: text;
         margin: 0;
-        letter-spacing: -0.01em;
     }
     
     .confidence {
@@ -194,7 +173,7 @@ st.markdown("""
         font-weight: 500;
     }
     
-    /* Metric cards grid */
+    /* Metric cards */
     .metric-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -208,25 +187,6 @@ st.markdown("""
         padding: 0.7rem;
         text-align: center;
         transition: all 0.3s ease;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .metric-item::before {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, #a8edea, #fed6e3);
-        transform: scaleX(0);
-        transition: transform 0.3s ease;
-    }
-    
-    .metric-item:hover::before {
-        transform: scaleX(1);
     }
     
     .metric-item:hover {
@@ -259,7 +219,6 @@ st.markdown("""
         text-align: center;
         background: rgba(255, 255, 255, 0.03);
         transition: all 0.3s ease;
-        cursor: pointer;
     }
     
     .upload-area:hover {
@@ -334,13 +293,13 @@ st.markdown("""
         border-right: 1px solid rgba(255, 255, 255, 0.05);
     }
     
-    /* Custom progress bar */
+    /* Progress bar */
     .stProgress > div > div {
         background: linear-gradient(90deg, #a8edea, #fed6e3);
         border-radius: 20px;
     }
     
-    /* Button styling */
+    /* Button */
     .stButton > button {
         background: linear-gradient(135deg, #a8edea, #fed6e3);
         color: #1a1a2e;
@@ -372,7 +331,7 @@ st.markdown("""
         margin-top: 1.5rem;
     }
     
-    /* Responsive design */
+    /* Responsive */
     @media (max-width: 992px) {
         .hero-title { font-size: 2.5rem; }
         .prediction { font-size: 1.6rem; }
@@ -395,7 +354,7 @@ st.markdown("""
         .metric-grid { grid-template-columns: 1fr; gap: 0.5rem; }
     }
     
-    /* Scrollbar styling */
+    /* Scrollbar */
     ::-webkit-scrollbar {
         width: 6px;
         height: 6px;
@@ -629,7 +588,7 @@ def preprocess_image(image):
 model, device, model_name, best_acc = load_model()
 
 # ============================================
-# SIDEBAR - ENHANCED
+# SIDEBAR
 # ============================================
 
 with st.sidebar:
@@ -667,7 +626,7 @@ with st.sidebar:
     st.markdown("### 📋 Classes")
     for i, cls in enumerate(CLASSES):
         st.markdown(f"""
-        <div style="background: rgba({int(cls['color'][1:3], 16) if cls['color'].startswith('#') else 255}, {int(cls['color'][3:5], 16) if cls['color'].startswith('#') else 255}, {int(cls['color'][5:7], 16) if cls['color'].startswith('#') else 255}, 0.08); border-radius: 10px; padding: 0.2rem 0.5rem; margin: 0.2rem 0; border-left: 2px solid {cls['color']};">
+        <div style="background: rgba(100,100,150,0.15); border-radius: 10px; padding: 0.2rem 0.5rem; margin: 0.2rem 0; border-left: 2px solid {cls['color']};">
             <span style="font-size: 0.9rem;">{cls['emoji']}</span>
             <span style="font-size: 0.7rem; font-weight: 500;">{cls['name']}</span>
             <span style="font-size: 0.6rem; color: rgba(255,255,255,0.35); display: block;">{cls['desc']}</span>
@@ -721,7 +680,7 @@ with col_left:
         st.image(image, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
         
-        # Image info badges
+        # Image info
         file_size = len(uploaded.getvalue()) / 1024
         st.markdown(f"""
         <div style="display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.8rem;">
@@ -769,7 +728,7 @@ with col_right:
         st.markdown("#### Confidence")
         st.progress(conf)
         
-        # Metrics grid
+        # Metrics
         st.markdown('<div class="metric-grid">', unsafe_allow_html=True)
         
         m1, m2, m3 = st.columns(3)
@@ -794,53 +753,62 @@ with col_right:
         
         st.markdown('</div>', unsafe_allow_html=True)
         
-        # Probability distribution chart - FIXED VERSION (no color issues)
-        st.markdown("#### Probability Distribution")
+        # ============================================
+        # IMPROVED PROBABILITY CHART - TOP 5 CLASSES ONLY
+        # ============================================
+        st.markdown("#### Top 5 Predictions")
+        
+        # Get top 5 indices
+        top_5_indices = np.argsort(all_probs)[-5:][::-1]
+        
+        # Create data for top 5
+        top_5_names = [CLASS_NAMES[i] for i in top_5_indices]
+        top_5_probs = [all_probs[i] * 100 for i in top_5_indices]
+        top_5_colors = [CLASSES[i]['color'] for i in top_5_indices]
+        
+        # Create horizontal bar chart
         fig, ax = plt.subplots(figsize=(8, 3.5))
         
-        # Use simple valid colors
-        bar_colors = ['#a8edea' if i == pred else '#4a4a6a' for i in range(10)]
+        # Create bars
+        bars = ax.barh(top_5_names, top_5_probs, color=top_5_colors, height=0.6, edgecolor='none')
         
-        bars = ax.barh(CLASS_NAMES, all_probs * 100, color=bar_colors, height=0.6)
+        # Customize chart
         ax.set_xlim(0, 100)
-        ax.set_xlabel('Probability (%)', fontsize=9)
+        ax.set_xlabel('Probability (%)', fontsize=9, color='white')
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
-        ax.spines['left'].set_color('#666')
-        ax.spines['bottom'].set_color('#666')
-        ax.tick_params(axis='y', labelsize=8)
-        ax.tick_params(axis='x', labelsize=7)
+        ax.spines['left'].set_color('#888888')
+        ax.spines['bottom'].set_color('#888888')
+        ax.tick_params(axis='y', labelsize=9, colors='white')
+        ax.tick_params(axis='x', labelsize=8, colors='#aaaaaa')
         ax.set_facecolor('#1a1a2e')
-        fig.patch.set_facecolor('transparent')
+        fig.patch.set_facecolor('#1a1a2e')
         
-        for bar, prob in zip(bars, all_probs):
-            if prob * 100 > 5:
+        # Add value labels
+        for bar, prob in zip(bars, top_5_probs):
+            if prob > 5:
                 ax.text(bar.get_width() + 1, bar.get_y() + bar.get_height()/2, 
-                       f'{prob*100:.1f}%', va='center', fontsize=7, fontweight='500', color='white')
+                       f'{prob:.1f}%', va='center', fontsize=8, fontweight='500', color='#a8edea')
         
         plt.tight_layout()
         st.pyplot(fig)
         
-        # Top predictions
-        st.markdown("#### Top Predictions")
-        top_indices = np.argsort(all_probs)[-3:][::-1]
-        for idx in top_indices:
-            cls = CLASSES[idx]
-            prob_val = all_probs[idx] * 100
-            st.markdown(f"""
-            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 0.4rem; margin: 0.3rem 0;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+        # Simple list view for all classes (compact)
+        with st.expander("View all 10 class probabilities"):
+            for i, cls in enumerate(CLASSES):
+                prob_val = all_probs[i] * 100
+                st.markdown(f"""
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.3rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
                     <div>
                         <span style="font-size: 1rem;">{cls['emoji']}</span>
-                        <span style="font-weight: 500; margin-left: 0.4rem; font-size: 0.8rem;">{cls['name']}</span>
+                        <span style="font-size: 0.8rem; margin-left: 0.5rem;">{cls['name']}</span>
                     </div>
-                    <div style="font-weight: 700; color: {'#a8edea' if idx == pred else 'rgba(255,255,255,0.5)'};">{prob_val:.1f}%</div>
+                    <div style="font-weight: 600; color: {'#a8edea' if i == pred else 'rgba(255,255,255,0.6)'};">{prob_val:.1f}%</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.1); border-radius: 10px; height: 3px; margin-top: 0.2rem;">
+                <div style="background: rgba(255,255,255,0.1); border-radius: 10px; height: 3px; margin: 0.2rem 0;">
                     <div style="width: {prob_val}%; height: 100%; background: linear-gradient(90deg, {cls['color']}, #a8edea); border-radius: 10px;"></div>
                 </div>
-            </div>
-            """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
         
     else:
         st.markdown("""
@@ -871,7 +839,7 @@ features = [
     {'icon': '📱', 'title': 'Responsive', 'desc': 'Mobile Ready'},
     {'icon': '🔬', 'title': 'Advanced', 'desc': 'Transfer Learning'},
     {'icon': '🎨', 'title': 'Modern UI', 'desc': 'Glass Design'},
-    {'icon': '📊', 'title': 'Analytics', 'desc': 'Probabilities'},
+    {'icon': '📊', 'title': 'Top-5', 'desc': 'Smart Display'},
     {'icon': '🛡️', 'title': 'Robust', 'desc': 'Error Handling'}
 ]
 
