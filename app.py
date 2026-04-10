@@ -1,4 +1,4 @@
-# app.py - Ultimate Modern Design with Responsive Layout
+# app.py - Ultimate Modern Design with Responsive Layout (FULLY FIXED)
 
 import streamlit as st
 import torch
@@ -304,11 +304,6 @@ st.markdown("""
     /* Custom file uploader */
     .stFileUploader {
         width: 100%;
-    }
-    
-    /* Chart styling */
-    .stPlotlyChart {
-        background: transparent;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -629,30 +624,32 @@ with col_right:
         
         st.markdown('</div>', unsafe_allow_html=True)
         
-               # Probability chart
-                # Probability chart
+        # Probability chart - FIXED VERSION
         st.markdown("#### probabilities")
         fig, ax = plt.subplots(figsize=(8, 3.5))
         
-        # تعريف الألوان بشكل صحيح - استخدام ألوان hex فقط
-        bar_colors = ['#a8edea' if i == pred else '#4a4a6a' for i in range(10)]
+        # Simple colors that always work
+        bar_colors = []
+        for i in range(10):
+            if i == pred:
+                bar_colors.append('#a8edea')
+            else:
+                bar_colors.append('#4a4a6a')
         
         bars = ax.barh(CLASSES, all_probs * 100, color=bar_colors, height=0.6)
         ax.set_xlim(0, 100)
         ax.set_xlabel('%', fontsize=9)
-        ax.set_facecolor('transparent')
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
-        ax.spines['left'].set_color('rgba(255,255,255,0.2)')
-        ax.spines['bottom'].set_color('rgba(255,255,255,0.2)')
-        ax.tick_params(axis='y', colors='rgba(255,255,255,0.7)', labelsize=9)
-        ax.tick_params(axis='x', colors='rgba(255,255,255,0.5)', labelsize=8)
+        ax.spines['left'].set_color('gray')
+        ax.spines['bottom'].set_color('gray')
+        ax.tick_params(axis='y', labelsize=9)
+        ax.tick_params(axis='x', labelsize=8)
         
         for bar, prob in zip(bars, all_probs):
             if prob * 100 > 5:
                 ax.text(bar.get_width() + 1, bar.get_y() + bar.get_height()/2, 
-                       f'{prob*100:.0f}%', va='center', fontsize=8, 
-                       color='rgba(255,255,255,0.7)', fontweight='500')
+                       f'{prob*100:.0f}%', va='center', fontsize=8, fontweight='500')
         
         plt.tight_layout()
         st.pyplot(fig)
