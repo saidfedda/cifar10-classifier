@@ -1,4 +1,5 @@
-# app.py - Ultimate Modern Design with Responsive Layout (FULLY FIXED)
+# app.py - Ultimate Modern Design with Responsive Layout (ENHANCED & OPTIMIZED)
+# تحسينات واجهة عصرية مع تنظيم محسّن
 
 import streamlit as st
 import torch
@@ -13,73 +14,68 @@ from datetime import datetime
 import os
 
 # ============================================
-# PAGE CONFIGURATION
+# PAGE CONFIGURATION - إعدادات الصفحة
 # ============================================
 
 st.set_page_config(
-    page_title="CIFAR-10 Vision AI",
-    page_icon="🎨",
+    page_title="CIFAR-10 Vision AI | التصنيف الذكي",
+    page_icon="🧠",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
 # ============================================
-# CUSTOM CSS - MODERN & RESPONSIVE
+# CUSTOM CSS - MODERN & RESPONSIVE DESIGN
+# تصميم عصري متجاوب مع تأثيرات زجاجية
 # ============================================
 
 st.markdown("""
 <style>
-    /* Import modern font */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-    
+    /* ===== FONTS & BASE ===== */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap');
+
     * {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Inter', 'Noto Sans Arabic', sans-serif;
+        box-sizing: border-box;
     }
-    
+
     /* Hide default Streamlit elements */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    
-    /* Main container */
+    #MainMenu, footer, header, [data-testid="stToolbar"] {
+        visibility: hidden !important;
+        display: none !important;
+    }
+
+    /* ===== DYNAMIC BACKGROUND ===== */
     .stApp {
-        background: linear-gradient(135deg, #0a0818 0%, #1a1540 40%, #0d1b3e 100%);
-        min-height: 100vh;
+        background: linear-gradient(135deg, 
+            #0f0c29 0%, 
+            #302b63 25%, 
+            #24243e 50%,
+            #1a1a40 75%,
+            #0f0c29 100%);
+        background-attachment: fixed;
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
     }
 
-    /* Animated background particles effect via pseudo-element */
-    .stApp::before {
-        content: '';
-        position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background:
-            radial-gradient(ellipse at 20% 50%, rgba(120, 80, 255, 0.08) 0%, transparent 60%),
-            radial-gradient(ellipse at 80% 20%, rgba(168, 237, 234, 0.06) 0%, transparent 50%),
-            radial-gradient(ellipse at 60% 80%, rgba(254, 214, 227, 0.05) 0%, transparent 50%);
-        pointer-events: none;
-        z-index: 0;
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
     }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
-    ::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #a8edea, #fed6e3);
-        border-radius: 10px;
-    }
-    
-    /* Glass morphism card */
+    /* ===== GLASS MORPHISM COMPONENTS ===== */
     .glass-card {
-        background: rgba(255, 255, 255, 0.06);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
         border-radius: 24px;
         padding: 2rem;
         border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow:
+        box-shadow: 
             0 8px 32px rgba(0, 0, 0, 0.3),
             inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
     }
@@ -87,87 +83,93 @@ st.markdown("""
     .glass-card::before {
         content: '';
         position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 1px;
-        background: linear-gradient(90deg,
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            90deg,
             transparent,
-            rgba(168, 237, 234, 0.4),
-            rgba(254, 214, 227, 0.4),
-            transparent);
+            rgba(255, 255, 255, 0.05),
+            transparent
+        );
+        transition: left 0.5s;
     }
-    
+
+    .glass-card:hover::before {
+        left: 100%;
+    }
+
     .glass-card:hover {
         transform: translateY(-6px);
-        border-color: rgba(168, 237, 234, 0.2);
-        box-shadow:
-            0 20px 60px rgba(0, 0, 0, 0.4),
-            0 0 40px rgba(168, 237, 234, 0.06),
-            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        border-color: rgba(168, 237, 234, 0.3);
+        box-shadow: 
+            0 20px 40px rgba(0, 0, 0, 0.4),
+            0 0 60px rgba(168, 237, 234, 0.1);
     }
-    
-    /* Hero section */
+
+    /* ===== HERO SECTION ===== */
     .hero {
         text-align: center;
-        padding: 3rem 0 1.5rem 0;
+        padding: 3rem 0 2rem 0;
         position: relative;
     }
 
     .hero-badge {
         display: inline-block;
-        padding: 0.35rem 1rem;
-        background: rgba(168, 237, 234, 0.1);
-        border: 1px solid rgba(168, 237, 234, 0.25);
-        border-radius: 30px;
-        font-size: 0.72rem;
+        background: rgba(168, 237, 234, 0.15);
+        border: 1px solid rgba(168, 237, 234, 0.3);
+        border-radius: 50px;
+        padding: 0.5rem 1.2rem;
+        font-size: 0.85rem;
         color: #a8edea;
-        letter-spacing: 2px;
+        margin-bottom: 1.5rem;
+        font-weight: 500;
+        letter-spacing: 1px;
         text-transform: uppercase;
-        font-weight: 600;
-        margin-bottom: 1.2rem;
     }
-    
+
     .hero-title {
-        font-size: 4rem;
+        font-size: clamp(2rem, 5vw, 4rem);
         font-weight: 800;
-        background: linear-gradient(135deg, #a8edea 0%, #c9b8ff 50%, #fed6e3 100%);
+        background: linear-gradient(135deg, 
+            #a8edea 0%, 
+            #fed6e3 50%,
+            #a8edea 100%);
+        background-size: 200% auto;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        margin-bottom: 0.8rem;
+        margin-bottom: 1rem;
         letter-spacing: -0.03em;
         line-height: 1.1;
-        text-shadow: none;
-    }
-    
-    .hero-subtitle {
-        font-size: 1.05rem;
-        color: rgba(255, 255, 255, 0.55);
-        font-weight: 400;
-        letter-spacing: 0.01em;
+        animation: shimmer 3s linear infinite;
     }
 
-    /* Divider */
-    .hero-divider {
-        width: 60px;
-        height: 3px;
-        background: linear-gradient(90deg, #a8edea, #fed6e3);
-        border-radius: 3px;
-        margin: 1.5rem auto 0;
-        opacity: 0.6;
+    @keyframes shimmer {
+        to { background-position: 200% center; }
     }
-    
-    /* Result card */
+
+    .hero-subtitle {
+        font-size: clamp(0.9rem, 2vw, 1.1rem);
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 400;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    /* ===== RESULT CARD ===== */
     .result-card {
-        background: linear-gradient(135deg,
-            rgba(168, 237, 234, 0.12),
-            rgba(201, 184, 255, 0.08),
-            rgba(254, 214, 227, 0.12));
-        backdrop-filter: blur(12px);
-        border-radius: 20px;
-        padding: 1.8rem 1.5rem;
+        background: linear-gradient(135deg, 
+            rgba(168, 237, 234, 0.1) 0%, 
+            rgba(254, 214, 227, 0.1) 100%);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        padding: 2rem;
         text-align: center;
-        border: 1px solid rgba(168, 237, 234, 0.25);
-        margin-bottom: 1.2rem;
+        border: 1px solid rgba(168, 237, 234, 0.2);
+        margin-bottom: 1.5rem;
         position: relative;
         overflow: hidden;
     }
@@ -175,53 +177,62 @@ st.markdown("""
     .result-card::after {
         content: '';
         position: absolute;
-        bottom: 0; left: 0; right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, #a8edea, #c9b8ff, #fed6e3);
-        border-radius: 0 0 20px 20px;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(168, 237, 234, 0.1) 0%, transparent 70%);
+        animation: pulse 4s ease-in-out infinite;
     }
-    
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
     .prediction {
-        font-size: 2.5rem;
+        font-size: clamp(1.8rem, 4vw, 2.5rem);
         font-weight: 800;
-        background: linear-gradient(135deg, #a8edea, #c9b8ff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: #a8edea;
         margin: 0;
         letter-spacing: -0.02em;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 0 30px rgba(168, 237, 234, 0.5);
     }
-    
+
     .confidence {
-        font-size: 0.95rem;
-        color: rgba(255, 255, 255, 0.65);
-        margin-top: 0.6rem;
-        font-weight: 400;
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-top: 0.8rem;
+        font-weight: 500;
+        position: relative;
+        z-index: 1;
     }
-    
-    /* Metric cards */
+
+    /* ===== METRIC GRID ===== */
     .metric-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.8rem;
-        margin: 1rem 0;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        margin: 1.5rem 0;
     }
-    
+
     .metric-item {
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.03);
         border-radius: 16px;
-        padding: 1rem 0.8rem;
+        padding: 1rem;
         text-align: center;
-        transition: all 0.25s ease;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.05);
     }
-    
+
     .metric-item:hover {
-        background: rgba(168, 237, 234, 0.08);
+        background: rgba(255, 255, 255, 0.08);
+        transform: scale(1.05);
         border-color: rgba(168, 237, 234, 0.2);
-        transform: translateY(-2px);
     }
-    
+
     .metric-value {
         font-size: 1.4rem;
         font-weight: 700;
@@ -229,234 +240,391 @@ st.markdown("""
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        line-height: 1.2;
     }
-    
+
     .metric-label {
-        font-size: 0.65rem;
-        color: rgba(255, 255, 255, 0.45);
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.5);
         text-transform: uppercase;
         letter-spacing: 1.5px;
         margin-top: 0.4rem;
         font-weight: 500;
     }
-    
-    /* Upload area */
-    .upload-area {
-        border: 2px dashed rgba(168, 237, 234, 0.5);
-        border-radius: 24px;
-        padding: 1.5rem;
+
+    /* ===== UPLOAD AREA ===== */
+    .upload-container {
+        border: 2px dashed rgba(168, 237, 234, 0.4);
+        border-radius: 20px;
+        padding: 2rem;
         text-align: center;
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(255, 255, 255, 0.02);
         transition: all 0.3s ease;
         cursor: pointer;
+        position: relative;
     }
-    
-    .upload-area:hover {
+
+    .upload-container:hover {
         border-color: #a8edea;
         background: rgba(168, 237, 234, 0.05);
+        transform: scale(1.02);
     }
-    
-    /* Image container */
+
+    .upload-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.8;
+    }
+
+    .upload-text {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .upload-hint {
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+    }
+
+    /* ===== IMAGE CONTAINER ===== */
     .image-container {
         border-radius: 16px;
         overflow: hidden;
         background: rgba(0, 0, 0, 0.3);
+        margin-top: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .image-container img {
+        width: 100%;
+        height: auto;
+        display: block;
+        transition: transform 0.5s ease;
+    }
+
+    .image-container:hover img {
+        transform: scale(1.05);
+    }
+
+    /* ===== INFO BADGES ===== */
+    .badge-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
         margin-top: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        justify-content: center;
     }
-    
-    /* Info badges */
+
     .badge {
-        display: inline-block;
-        padding: 0.3rem 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.4rem 0.9rem;
         border-radius: 20px;
-        font-size: 0.7rem;
-        font-weight: 600;
-        margin: 0.25rem;
-        letter-spacing: 0.3px;
-    }
-    
-    .badge-primary {
-        background: rgba(168, 237, 234, 0.12);
+        font-size: 0.8rem;
+        font-weight: 500;
+        background: rgba(168, 237, 234, 0.1);
         color: #a8edea;
-        border: 1px solid rgba(168, 237, 234, 0.25);
+        border: 1px solid rgba(168, 237, 234, 0.2);
+        transition: all 0.2s ease;
     }
-    
-    /* Feature grid */
-    .features {
+
+    .badge:hover {
+        background: rgba(168, 237, 234, 0.2);
+        transform: translateY(-2px);
+    }
+
+    /* ===== FEATURES GRID ===== */
+    .features-section {
+        margin: 3rem 0;
+    }
+
+    .features-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
-        margin: 2rem 0;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
     }
-    
-    .feature-item {
-        text-align: center;
-        padding: 1.3rem 1rem;
+
+    .feature-card {
         background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: 20px;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.05);
         position: relative;
         overflow: hidden;
     }
 
-    .feature-item::before {
+    .feature-card::before {
         content: '';
         position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 1px;
-        background: linear-gradient(90deg,
-            transparent,
-            rgba(168, 237, 234, 0.3),
-            transparent);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-    
-    .feature-item:hover {
-        background: rgba(168, 237, 234, 0.05);
-        border-color: rgba(168, 237, 234, 0.15);
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #a8edea, #fed6e3);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
     }
 
-    .feature-item:hover::before {
-        opacity: 1;
+    .feature-card:hover::before {
+        transform: scaleX(1);
     }
-    
+
+    .feature-card:hover {
+        background: rgba(255, 255, 255, 0.06);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+
     .feature-icon {
-        font-size: 2.2rem;
-        margin-bottom: 0.6rem;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
         display: block;
     }
-    
+
     .feature-title {
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: rgba(255, 255, 255, 0.9);
-        margin-bottom: 0.3rem;
-        letter-spacing: 0.01em;
+        font-size: 1rem;
+        font-weight: 600;
+        color: white;
+        margin-bottom: 0.5rem;
     }
-    
+
     .feature-desc {
-        font-size: 0.7rem;
-        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.5);
         line-height: 1.4;
     }
-    
-    /* Sidebar styling */
+
+    /* ===== SIDEBAR ===== */
     [data-testid="stSidebar"] {
-        background: rgba(10, 8, 24, 0.97);
-        backdrop-filter: blur(20px);
-        border-right: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(15, 12, 41, 0.98) !important;
+        backdrop-filter: blur(20px) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
     }
-    
+
     [data-testid="stSidebar"] .stMarkdown {
         color: rgba(255, 255, 255, 0.8);
     }
-    
-    /* Progress bar customization */
+
+    .sidebar-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #a8edea;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* ===== PROGRESS & BUTTONS ===== */
     .stProgress > div > div {
-        background: linear-gradient(90deg, #a8edea, #c9b8ff, #fed6e3);
-        border-radius: 20px;
-        box-shadow: 0 0 10px rgba(168, 237, 234, 0.3);
+        background: linear-gradient(90deg, #a8edea, #fed6e3) !important;
+        border-radius: 10px !important;
+        height: 8px !important;
     }
 
     .stProgress > div {
-        background: rgba(255, 255, 255, 0.06);
-        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-radius: 10px !important;
     }
-    
-    /* Button styling */
+
     .stButton > button {
-        background: linear-gradient(135deg, #a8edea, #c9b8ff, #fed6e3);
-        color: #0f0c29;
-        border: none;
-        border-radius: 40px;
-        padding: 0.6rem 1.5rem;
-        font-weight: 700;
-        font-size: 0.9rem;
-        transition: all 0.3s ease;
-        width: 100%;
-        letter-spacing: 0.02em;
-        box-shadow: 0 4px 15px rgba(168, 237, 234, 0.2);
+        background: linear-gradient(135deg, #a8edea, #fed6e3) !important;
+        color: #1a1a2e !important;
+        border: none !important;
+        border-radius: 50px !important;
+        padding: 0.8rem 2rem !important;
+        font-weight: 700 !important;
+        font-size: 1rem !important;
+        transition: all 0.3s ease !important;
+        width: 100% !important;
+        box-shadow: 0 4px 15px rgba(168, 237, 234, 0.3) !important;
     }
-    
+
     .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(168, 237, 234, 0.35);
-        filter: brightness(1.05);
+        transform: translateY(-2px) scale(1.02) !important;
+        box-shadow: 0 8px 25px rgba(168, 237, 234, 0.4) !important;
     }
 
     .stButton > button:active {
-        transform: translateY(0);
+        transform: scale(0.98) !important;
     }
-    
-    /* Footer */
+
+    /* ===== CHART STYLING ===== */
+    .chart-container {
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 16px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+
+    /* ===== FOOTER ===== */
     .footer {
         text-align: center;
-        padding: 2rem;
-        color: rgba(255, 255, 255, 0.3);
-        font-size: 0.75rem;
+        padding: 3rem 2rem;
+        margin-top: 3rem;
         border-top: 1px solid rgba(255, 255, 255, 0.05);
-        margin-top: 2rem;
-        letter-spacing: 0.05em;
+        position: relative;
     }
-    
-    /* Responsive design */
+
+    .footer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #a8edea, transparent);
+    }
+
+    .footer-text {
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.85rem;
+        line-height: 1.6;
+    }
+
+    .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .footer-link {
+        color: rgba(168, 237, 234, 0.6);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.2s ease;
+    }
+
+    .footer-link:hover {
+        color: #a8edea;
+    }
+
+    /* ===== RESPONSIVE DESIGN ===== */
     @media (max-width: 768px) {
-        .hero-title {
-            font-size: 2rem;
+        .hero {
+            padding: 2rem 0 1rem 0;
         }
-        
-        .prediction {
-            font-size: 1.5rem;
+
+        .glass-card {
+            padding: 1.5rem;
+            border-radius: 20px;
         }
-        
-        .features {
+
+        .metric-grid {
             grid-template-columns: repeat(2, 1fr);
             gap: 0.8rem;
         }
-        
-        .glass-card {
+
+        .features-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .feature-card {
             padding: 1rem;
         }
-        
+
+        .upload-container {
+            padding: 1.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+
         .metric-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .badge-container {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .footer-links {
+            flex-direction: column;
             gap: 0.5rem;
         }
     }
-    
-    @media (max-width: 480px) {
-        .features {
-            grid-template-columns: 1fr;
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
     }
-    
-    /* Custom file uploader */
-    .stFileUploader {
-        width: 100%;
+
+    .animate-fadeInUp {
+        animation: fadeInUp 0.6s ease forwards;
+    }
+
+    /* ===== LOADING SPINNER ===== */
+    .stSpinner > div {
+        border-color: #a8edea !important;
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(168, 237, 234, 0.3);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(168, 237, 234, 0.5);
     }
 </style>
 """, unsafe_allow_html=True)
 
 # ============================================
-# CONSTANTS
+# CONSTANTS - الثوابت
 # ============================================
 
 CIFAR_MEAN = (0.4914, 0.4822, 0.4465)
 CIFAR_STD = (0.2470, 0.2435, 0.2616)
-CLASSES = ['🛩️ Plane', '🚗 Car', '🐦 Bird', '🐱 Cat', '🦌 Deer', 
-           '🐕 Dog', '🐸 Frog', '🐴 Horse', '🚢 Ship', '🚛 Truck']
+CLASSES = [
+    ('🛩️', 'Plane', 'طائرة'),
+    ('🚗', 'Car', 'سيارة'),
+    ('🐦', 'Bird', 'طائر'),
+    ('🐱', 'Cat', 'قطة'),
+    ('🦌', 'Deer', 'غزال'),
+    ('🐕', 'Dog', 'كلب'),
+    ('🐸', 'Frog', 'ضفدع'),
+    ('🐴', 'Horse', 'حصان'),
+    ('🚢', 'Ship', 'سفينة'),
+    ('🚛', 'Truck', 'شاحنة')
+]
+
+CLASS_LABELS = [f"{emoji} {en} | {ar}" for emoji, en, ar in CLASSES]
 
 # ============================================
-# MODEL DEFINITIONS
+# MODEL DEFINITIONS - تعريفات النماذج
 # ============================================
 
 class ANN(nn.Module):
+    """Artificial Neural Network for CIFAR-10"""
     def __init__(self, dropout_rate=0.3):
         super(ANN, self).__init__()
         self.flatten = nn.Flatten()
@@ -483,7 +651,9 @@ class ANN(nn.Module):
         x = self.fc4(x)
         return x
 
+
 class CNN(nn.Module):
+    """Convolutional Neural Network for CIFAR-10"""
     def __init__(self, dropout_rate=0.3):
         super(CNN, self).__init__()
         self.conv1 = nn.Conv2d(3, 32, 3, padding=1)
@@ -529,7 +699,9 @@ class CNN(nn.Module):
         x = self.fc2(x)
         return x
 
+
 class ResidualBlock(nn.Module):
+    """Residual Block for ResNet Architecture"""
     def __init__(self, in_channels, out_channels, stride=1, dropout_rate=0.3):
         super(ResidualBlock, self).__init__()
         self.conv1 = nn.Conv2d(in_channels, out_channels, 3, stride=stride, padding=1, bias=False)
@@ -555,7 +727,9 @@ class ResidualBlock(nn.Module):
         out = self.relu(out)
         return out
 
+
 class AdvancedCNN(nn.Module):
+    """Advanced CNN with ResNet Architecture"""
     def __init__(self, num_classes=10, dropout_rate=0.3):
         super(AdvancedCNN, self).__init__()
         self.conv1 = nn.Conv2d(3, 64, 3, padding=1, bias=False)
@@ -588,49 +762,54 @@ class AdvancedCNN(nn.Module):
         x = self.fc(x)
         return x
 
+
 # ============================================
-# LOAD MODEL
+# MODEL LOADING - تحميل النموذج
 # ============================================
 
-@st.cache_resource
+@st.cache_resource(show_spinner=False)
 def load_model():
+    """Load the trained model with error handling"""
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    
+
     model = AdvancedCNN(num_classes=10, dropout_rate=0.4)
-    
+
     if os.path.exists('saved_models/best_model.pth'):
         try:
             checkpoint = torch.load('saved_models/best_model.pth', map_location=device)
-            
+
             if 'model_state_dict' in checkpoint:
                 state_dict = checkpoint['model_state_dict']
             else:
                 state_dict = checkpoint
-            
+
             new_state_dict = {}
             for key, value in state_dict.items():
                 new_key = key.replace('module.', '')
                 new_state_dict[new_key] = value
-            
+
             model.load_state_dict(new_state_dict)
-            
+
             accuracy = checkpoint.get('test_accuracy', 89.05)
             if isinstance(accuracy, (float, int)):
                 accuracy = float(accuracy)
             else:
                 accuracy = 89.05
-                
+
         except Exception as e:
+            st.warning(f"⚠️ Could not load model weights: {str(e)}")
             accuracy = 89.05
     else:
         accuracy = 89.05
-    
+
     model = model.to(device)
     model.eval()
-    
-    return model, device, "AdvancedCNN", accuracy
+
+    return model, device, "AdvancedCNN (ResNet)", accuracy
+
 
 def preprocess_image(image):
+    """Preprocess image for model inference"""
     transform = transforms.Compose([
         transforms.Resize((32, 32)),
         transforms.ToTensor(),
@@ -638,215 +817,307 @@ def preprocess_image(image):
     ])
     return transform(image).unsqueeze(0)
 
-# ============================================
-# LOAD MODEL
-# ============================================
-
-model, device, model_name, best_acc = load_model()
 
 # ============================================
-# SIDEBAR
+# UI COMPONENTS - مكونات الواجهة
 # ============================================
 
-with st.sidebar:
-    st.markdown("### 🎯 CIFAR-10 Vision")
-    st.caption("Advanced Image Classification")
-    
-    st.markdown("---")
-    
-    st.markdown("**🤖 Model**")
-    st.code(model_name, language=None)
-    
-    st.markdown("**📊 Accuracy**")
-    st.markdown(f"<span style='font-size: 1.8rem; font-weight: 700; color: #a8edea;'>{best_acc:.1f}%</span>", unsafe_allow_html=True)
-    
-    st.markdown("---")
-    
-    st.markdown("**📋 Classes**")
-    cols = st.columns(2)
-    for i, cls in enumerate(CLASSES):
-        cols[i%2].markdown(f"- {cls}")
-    
-    st.markdown("---")
-    
-    st.caption(f"PyTorch • Streamlit\n{datetime.now().year}")
+def render_sidebar():
+    """Render the sidebar with model info"""
+    with st.sidebar:
+        st.markdown("""
+        <div class="sidebar-title">
+            🧠 CIFAR-10 Vision
+        </div>
+        """, unsafe_allow_html=True)
 
-# ============================================
-# MAIN CONTENT
-# ============================================
+        st.caption("Advanced Image Classification | تصنيف الصور المتقدم")
+        st.markdown("---")
 
-# Hero Section
-st.markdown("""
-<div class="hero">
-    <div class="hero-badge">✦ AI POWERED</div>
-    <div class="hero-title">visual intelligence</div>
-    <div class="hero-subtitle">CIFAR-10 image classification with deep learning</div>
-    <div class="hero-divider"></div>
-</div>
-""", unsafe_allow_html=True)
+        # Model info
+        st.markdown("**🤖 Model Architecture**")
+        st.code(model_name, language=None)
 
-# Main columns
-col_left, col_right = st.columns([1, 1], gap="large")
+        st.markdown("**📊 Test Accuracy**")
+        st.markdown(
+            f"<span style='font-size: 2rem; font-weight: 800; color: #a8edea;'>"
+            f"{best_acc:.1f}%</span>", 
+            unsafe_allow_html=True
+        )
 
-with col_left:
-    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    st.markdown("#### 📸 Upload")
-    st.caption("supported formats: JPG, PNG, JPEG")
-    
-    uploaded = st.file_uploader("", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
-    
-    if uploaded:
-        image = Image.open(uploaded).convert('RGB')
-        
-        st.markdown('<div class="image-container">', unsafe_allow_html=True)
-        st.image(image, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        # Image info badges
-        c1, c2, c3 = st.columns(3)
-        c1.markdown(f'<span class="badge badge-primary">📏 {image.size[0]}px</span>', unsafe_allow_html=True)
-        c2.markdown(f'<span class="badge badge-primary">📐 {image.size[1]}px</span>', unsafe_allow_html=True)
-        c3.markdown(f'<span class="badge badge-primary">🎨 {image.mode}</span>', unsafe_allow_html=True)
-    
+        st.markdown("---")
+
+        # Classes list
+        st.markdown("**📋 Supported Classes | الفئات**")
+
+        # Create two columns for classes
+        cols = st.columns(2)
+        for i, (emoji, en, ar) in enumerate(CLASSES):
+            with cols[i % 2]:
+                st.markdown(f"<small>{emoji} {en}</small>", unsafe_allow_html=True)
+
+        st.markdown("---")
+
+        # Device info
+        device_icon = "⚡" if device.type == "cuda" else "🔋"
+        st.markdown(f"**{device_icon} Device:** `{device.type.upper()}`")
+
+        st.caption(f"\nPyTorch {torch.__version__} • Streamlit\n© {datetime.now().year}")
+
+
+def render_hero():
+    """Render the hero section"""
+    st.markdown("""
+    <div class="hero animate-fadeInUp">
+        <div class="hero-badge">✨ AI-Powered Classification</div>
+        <div class="hero-title">Visual Intelligence</div>
+        <div class="hero-subtitle">
+            CIFAR-10 image classification using deep learning ResNet architecture.<br>
+            <span dir="rtl">تصنيف صور CIFAR-10 باستخدام تعلم عميق متقدم</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+def render_upload_section():
+    """Render the image upload section"""
+    st.markdown("#### 📸 Upload Image | رفع صورة")
+    st.caption("Supported formats: JPG, PNG, JPEG")
+
+    uploaded_file = st.file_uploader(
+        "",
+        type=["jpg", "jpeg", "png"],
+        label_visibility="collapsed",
+        help="Upload an image to classify"
+    )
+
+    if uploaded_file is None:
+        st.markdown("""
+        <div class="upload-container">
+            <div class="upload-icon">📤</div>
+            <div class="upload-text">Drop your image here</div>
+            <div class="upload-hint">or click to browse files</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    return uploaded_file
+
+
+def render_image_display(image):
+    """Render the uploaded image with info"""
+    st.markdown('<div class="image-container">', unsafe_allow_html=True)
+    st.image(image, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-with col_right:
+    # Image metadata badges
+    st.markdown("""
+    <div class="badge-container">
+        <span class="badge">📏 {} x {} px</span>
+        <span class="badge">🎨 {}</span>
+        <span class="badge">📁 {:.1f} KB</span>
+    </div>
+    """.format(image.size[0], image.size[1], image.mode, image.tell()/1024), 
+    unsafe_allow_html=True)
+
+
+def render_prediction_result(pred_idx, confidence, all_probs):
+    """Render the prediction results"""
+    emoji, en_name, ar_name = CLASSES[pred_idx]
+
+    # Result card
+    st.markdown(f"""
+    <div class="result-card animate-fadeInUp">
+        <div class="prediction">{emoji} {en_name}</div>
+        <div style="font-size: 1.2rem; color: #fed6e3; margin-top: 0.5rem;">{ar_name}</div>
+        <div class="confidence">Confidence: {confidence*100:.1f}% | الثقة</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Confidence progress bar
+    st.markdown("**📊 Confidence Score | نسبة الثقة**")
+    st.progress(confidence)
+
+    # Metrics grid
+    st.markdown("""
+    <div class="metric-grid">
+        <div class="metric-item">
+            <div class="metric-value">{:.0f}%</div>
+            <div class="metric-label">Confidence</div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-value">{}</div>
+            <div class="metric-label">Architecture</div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-value">{:.0f}%</div>
+            <div class="metric-label">Model Acc</div>
+        </div>
+    </div>
+    """.format(confidence*100, model_name.split()[0], best_acc), 
+    unsafe_allow_html=True)
+
+    # Probability chart
+    st.markdown("**📈 Class Probabilities | احتمالات الفئات**")
+
+    fig, ax = plt.subplots(figsize=(10, 4))
+
+    # Create color array
+    bar_colors = ['#a8edea' if i == pred_idx else '#4a4a6a' for i in range(10)]
+
+    # Horizontal bar chart
+    y_pos = np.arange(10)
+    bars = ax.barh(y_pos, all_probs * 100, color=bar_colors, height=0.6, edgecolor='none')
+
+    # Customize
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels([f"{emoji} {en}" for emoji, en, ar in CLASSES], fontsize=10)
+    ax.set_xlim(0, 100)
+    ax.set_xlabel('Probability (%)', fontsize=10, color='white', fontweight='bold')
+    ax.tick_params(axis='both', colors='white', labelsize=9)
+
+    # Remove spines
+    for spine in ax.spines.values():
+        spine.set_color('rgba(255,255,255,0.2)')
+
+    # Add value labels
+    for i, (bar, prob) in enumerate(zip(bars, all_probs)):
+        if prob * 100 > 3:
+            ax.text(
+                bar.get_width() + 1, 
+                bar.get_y() + bar.get_height()/2, 
+                f'{prob*100:.1f}%', 
+                va='center', 
+                fontsize=9, 
+                fontweight='bold',
+                color='white' if i == pred_idx else 'rgba(255,255,255,0.6)'
+            )
+
+    # Set background color
+    ax.set_facecolor('none')
+    fig.patch.set_alpha(0)
+
+    plt.tight_layout()
+    st.pyplot(fig, transparent=True)
+
+
+def render_features():
+    """Render features section"""
+    st.markdown("""
+    <div class="features-section">
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🧠</span>
+                <div class="feature-title">Deep Learning</div>
+                <div class="feature-desc">ResNet architecture with residual blocks</div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">⚡</span>
+                <div class="feature-title">Real-time</div>
+                <div class="feature-desc">Fast GPU/CPU inference</div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🎯</span>
+                <div class="feature-title">Accurate</div>
+                <div class="feature-desc">89%+ classification accuracy</div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">📱</span>
+                <div class="feature-title">Responsive</div>
+                <div class="feature-desc">Works on all devices</div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+def render_footer():
+    """Render the footer"""
+    st.markdown("""
+    <div class="footer">
+        <div class="footer-links">
+            <a href="#" class="footer-link">CIFAR-10 Dataset</a>
+            <a href="#" class="footer-link">PyTorch</a>
+            <a href="#" class="footer-link">Streamlit</a>
+        </div>
+        <div class="footer-text">
+            <p>Built with ❤️ using PyTorch & Streamlit</p>
+            <p>© {} • Advanced CNN with ResNet Architecture</p>
+        </div>
+    </div>
+    """.format(datetime.now().year), unsafe_allow_html=True)
+
+
+# ============================================
+# MAIN APPLICATION - التطبيق الرئيسي
+# ============================================
+
+# Load model
+try:
+    model, device, model_name, best_acc = load_model()
+except Exception as e:
+    st.error(f"❌ Error loading model: {str(e)}")
+    st.stop()
+
+# Render sidebar
+render_sidebar()
+
+# Render hero section
+render_hero()
+
+# Main content columns
+left_col, right_col = st.columns([1, 1], gap="large")
+
+# Left column - Upload
+with left_col:
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    st.markdown("#### 🎯 Result")
-    
-    if uploaded:
-        with st.spinner("analyzing..."):
-            tensor = preprocess_image(image).to(device)
-            with torch.no_grad():
-                out = model(tensor)
-                probs = F.softmax(out, dim=1)
-                pred = torch.argmax(probs, dim=1).item()
-                conf = probs[0][pred].item()
-                all_probs = probs[0].cpu().numpy()
-        
-        # Result card
-        st.markdown(f"""
-        <div class="result-card">
-            <div class="prediction">{CLASSES[pred]}</div>
-            <div class="confidence">confidence {conf*100:.1f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Confidence bar
-        st.markdown("#### confidence")
-        st.progress(conf)
-        
-        # Metrics
-        st.markdown('<div class="metric-grid">', unsafe_allow_html=True)
-        
-        m1, m2, m3 = st.columns(3)
-        m1.markdown(f"""
-        <div class="metric-item">
-            <div class="metric-value">{conf*100:.0f}%</div>
-            <div class="metric-label">confidence</div>
-        </div>
-        """, unsafe_allow_html=True)
-        m2.markdown(f"""
-        <div class="metric-item">
-            <div class="metric-value">{model_name}</div>
-            <div class="metric-label">architecture</div>
-        </div>
-        """, unsafe_allow_html=True)
-        m3.markdown(f"""
-        <div class="metric-item">
-            <div class="metric-value">{best_acc:.0f}%</div>
-            <div class="metric-label">model acc</div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        # Probability chart - FIXED VERSION
-        st.markdown("#### probabilities")
-        fig, ax = plt.subplots(figsize=(8, 3.5))
-        
-        # Simple colors that always work
-        bar_colors = []
-        for i in range(10):
-            if i == pred:
-                bar_colors.append('#a8edea')
-            else:
-                bar_colors.append('#4a4a6a')
-        
-        bars = ax.barh(CLASSES, all_probs * 100, color=bar_colors, height=0.6)
-        ax.set_xlim(0, 100)
-        ax.set_xlabel('%', fontsize=9)
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.spines['left'].set_color('gray')
-        ax.spines['bottom'].set_color('gray')
-        ax.tick_params(axis='y', labelsize=9)
-        ax.tick_params(axis='x', labelsize=8)
-        
-        for bar, prob in zip(bars, all_probs):
-            if prob * 100 > 5:
-                ax.text(bar.get_width() + 1, bar.get_y() + bar.get_height()/2, 
-                       f'{prob*100:.0f}%', va='center', fontsize=8, fontweight='500')
-        
-        plt.tight_layout()
-        st.pyplot(fig)
-        
+    uploaded_file = render_upload_section()
+
+    if uploaded_file is not None:
+        try:
+            image = Image.open(uploaded_file).convert('RGB')
+            render_image_display(image)
+        except Exception as e:
+            st.error(f"❌ Error loading image: {str(e)}")
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# Right column - Results
+with right_col:
+    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+    st.markdown("#### 🎯 Prediction Result | نتيجة التصنيف")
+
+    if uploaded_file is not None:
+        try:
+            with st.spinner("🔄 Analyzing image... | جاري التحليل..."):
+                # Preprocess and predict
+                tensor = preprocess_image(image).to(device)
+
+                with torch.no_grad():
+                    output = model(tensor)
+                    probabilities = F.softmax(output, dim=1)
+                    prediction = torch.argmax(probabilities, dim=1).item()
+                    confidence = probabilities[0][prediction].item()
+                    all_probabilities = probabilities[0].cpu().numpy()
+
+                # Render results
+                render_prediction_result(prediction, confidence, all_probabilities)
+
+        except Exception as e:
+            st.error(f"❌ Prediction error: {str(e)}")
+            st.info("Please try uploading a different image.")
     else:
         st.markdown("""
-        <div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">
-            <span style="font-size: 2rem;">⬅️</span>
-            <p style="margin-top: 0.5rem;">upload an image<br>to begin</p>
+        <div style="text-align: center; padding: 3rem 1rem; color: rgba(255,255,255,0.4);">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">⬅️</div>
+            <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">Upload an image to begin</p>
+            <p style="font-size: 0.9rem; opacity: 0.7;" dir="rtl">قم برفع صورة للبدء</p>
         </div>
         """, unsafe_allow_html=True)
-    
+
     st.markdown('</div>', unsafe_allow_html=True)
 
-# Features Section
-st.markdown('<div class="features">', unsafe_allow_html=True)
-
-f1, f2, f3, f4 = st.columns(4)
-
-with f1:
-    st.markdown("""
-    <div class="feature-item">
-        <div class="feature-icon">🧠</div>
-        <div class="feature-title">Deep Learning</div>
-        <div class="feature-desc">ResNet architecture</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with f2:
-    st.markdown("""
-    <div class="feature-item">
-        <div class="feature-icon">⚡</div>
-        <div class="feature-title">Real-time</div>
-        <div class="feature-desc">Fast inference</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with f3:
-    st.markdown("""
-    <div class="feature-item">
-        <div class="feature-icon">🎯</div>
-        <div class="feature-title">Accurate</div>
-        <div class="feature-desc">89%+ accuracy</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with f4:
-    st.markdown("""
-    <div class="feature-item">
-        <div class="feature-icon">📱</div>
-        <div class="feature-title">Responsive</div>
-        <div class="feature-desc">Mobile ready</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-st.markdown('</div>', unsafe_allow_html=True)
+# Features section
+render_features()
 
 # Footer
-st.markdown("""
-<div class="footer">
-    <p>CIFAR-10 • ResNet Architecture • Deployed with Streamlit</p>
-</div>
-""", unsafe_allow_html=True)
+render_footer()
