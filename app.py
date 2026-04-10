@@ -1,5 +1,4 @@
-# app.py - ULTIMATE MODERN DESIGN WITH ADVANCED EFFECTS (FULLY FIXED)
-# Fully responsive with glass morphism, smooth animations, and interactive elements
+# app.py - Ultimate Modern Design with Responsive Layout (FULLY FIXED)
 
 import streamlit as st
 import torch
@@ -18,22 +17,21 @@ import os
 # ============================================
 
 st.set_page_config(
-    page_title="CIFAR-10 Vision AI | Advanced Image Classifier",
+    page_title="CIFAR-10 Vision AI",
     page_icon="🎨",
     layout="wide",
-    initial_sidebar_state="expanded"  # تأكد من أن الشريط الجانبي مفتوح
+    initial_sidebar_state="collapsed"
 )
 
 # ============================================
-# ADVANCED CUSTOM CSS - GLASS MORPHISM + ANIMATIONS
+# CUSTOM CSS - MODERN & RESPONSIVE
 # ============================================
 
 st.markdown("""
 <style>
-    /* Import modern fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap');
+    /* Import modern font */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     
-    /* Global styles */
     * {
         font-family: 'Inter', sans-serif;
     }
@@ -46,105 +44,57 @@ st.markdown("""
     /* Main container */
     .stApp {
         background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-        background-attachment: fixed;
-    }
-    
-    /* Force sidebar to always be visible */
-    [data-testid="stSidebar"] {
-        background: rgba(15, 12, 41, 0.95) !important;
-        backdrop-filter: blur(10px) !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
-        min-width: 280px !important;
-        width: 280px !important;
-    }
-    
-    /* Prevent sidebar collapse */
-    [data-testid="stSidebarCollapsedControl"] {
-        display: none !important;
     }
     
     /* Glass morphism card */
     .glass-card {
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.07);
         backdrop-filter: blur(12px);
         border-radius: 28px;
-        padding: 1.5rem;
+        padding: 1.8rem;
         border: 1px solid rgba(255, 255, 255, 0.1);
         box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
-        transition: all 0.4s ease;
+        transition: all 0.3s ease;
     }
     
     .glass-card:hover {
         transform: translateY(-4px);
-        border-color: rgba(168, 237, 234, 0.3);
+        border-color: rgba(255, 255, 255, 0.2);
         box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
     }
     
     /* Hero section */
     .hero {
         text-align: center;
-        padding: 1rem 0 0.5rem 0;
-        animation: fadeInDown 0.8s ease-out;
-    }
-    
-    @keyframes fadeInDown {
-        from {
-            opacity: 0;
-            transform: translateY(-30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        padding: 2rem 0 1rem 0;
     }
     
     .hero-title {
-        font-size: 3rem;
+        font-size: 3.5rem;
         font-weight: 800;
-        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 50%, #ffd6a5 100%);
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        margin-bottom: 0.2rem;
+        margin-bottom: 0.5rem;
         letter-spacing: -0.02em;
-        animation: gradientShift 3s ease infinite;
-        background-size: 200% 200%;
-    }
-    
-    @keyframes gradientShift {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
     }
     
     .hero-subtitle {
-        font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.5);
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.7);
         font-weight: 400;
     }
     
-    /* Section headers */
-    .section-header {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .section-icon {
-        font-size: 1.3rem;
-    }
-    
+    /* Section titles */
     .section-title {
-        font-weight: 700;
-        font-size: 1rem;
-    }
-    
-    .section-subtitle {
-        font-size: 0.65rem;
-        color: rgba(255, 255, 255, 0.4);
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #a8edea;
+        margin-bottom: 1rem;
+        display: inline-block;
+        border-bottom: 2px solid #a8edea;
+        padding-bottom: 0.3rem;
     }
     
     /* Result card */
@@ -152,65 +102,50 @@ st.markdown("""
         background: linear-gradient(135deg, rgba(168, 237, 234, 0.15), rgba(254, 214, 227, 0.15));
         backdrop-filter: blur(12px);
         border-radius: 28px;
-        padding: 1.2rem;
+        padding: 1.5rem;
         text-align: center;
         border: 1px solid rgba(168, 237, 234, 0.3);
         margin-bottom: 1rem;
-        animation: slideInUp 0.6s ease-out;
-    }
-    
-    @keyframes slideInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
     }
     
     .prediction {
-        font-size: 1.8rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #a8edea, #fed6e3);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #a8edea;
         margin: 0;
+        letter-spacing: -0.01em;
     }
     
     .confidence {
-        font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.7);
-        margin-top: 0.4rem;
-        font-weight: 500;
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-top: 0.5rem;
     }
     
     /* Metric cards */
     .metric-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 0.8rem;
+        gap: 1rem;
         margin: 1rem 0;
     }
     
     .metric-item {
         background: rgba(255, 255, 255, 0.05);
         border-radius: 20px;
-        padding: 0.6rem;
+        padding: 0.8rem;
         text-align: center;
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
     }
     
     .metric-item:hover {
         background: rgba(255, 255, 255, 0.1);
-        transform: translateY(-3px);
+        transform: scale(1.02);
     }
     
     .metric-value {
-        font-size: 1.3rem;
-        font-weight: 800;
+        font-size: 1.5rem;
+        font-weight: 700;
         background: linear-gradient(135deg, #a8edea, #fed6e3);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -218,21 +153,22 @@ st.markdown("""
     }
     
     .metric-label {
-        font-size: 0.6rem;
-        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.6);
         text-transform: uppercase;
         letter-spacing: 1px;
-        margin-top: 0.2rem;
+        margin-top: 0.3rem;
     }
     
     /* Upload area */
     .upload-area {
-        border: 2px dashed rgba(168, 237, 234, 0.4);
+        border: 2px dashed rgba(168, 237, 234, 0.5);
         border-radius: 24px;
-        padding: 1.2rem;
+        padding: 1.5rem;
         text-align: center;
         background: rgba(255, 255, 255, 0.03);
         transition: all 0.3s ease;
+        cursor: pointer;
     }
     
     .upload-area:hover {
@@ -245,36 +181,39 @@ st.markdown("""
         border-radius: 20px;
         overflow: hidden;
         background: rgba(0, 0, 0, 0.3);
-        margin-top: 0.8rem;
+        margin-top: 1rem;
     }
     
-    /* Badge styles */
+    /* Info badges */
     .badge {
         display: inline-block;
-        padding: 0.2rem 0.6rem;
+        padding: 0.3rem 0.8rem;
         border-radius: 20px;
-        font-size: 0.6rem;
+        font-size: 0.7rem;
         font-weight: 500;
-        margin: 0.15rem;
-        background: rgba(168, 237, 234, 0.15);
-        color: #a8edea;
-        border: 1px solid rgba(168, 237, 234, 0.2);
+        margin: 0.2rem;
     }
     
-    /* Features grid */
+    .badge-primary {
+        background: rgba(168, 237, 234, 0.2);
+        color: #a8edea;
+        border: 1px solid rgba(168, 237, 234, 0.3);
+    }
+    
+    /* Feature grid */
     .features {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 0.8rem;
-        margin: 1rem 0;
+        gap: 1rem;
+        margin: 2rem 0;
     }
     
     .feature-item {
         text-align: center;
-        padding: 0.7rem;
+        padding: 1rem;
         background: rgba(255, 255, 255, 0.03);
         border-radius: 20px;
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
     }
     
     .feature-item:hover {
@@ -283,99 +222,99 @@ st.markdown("""
     }
     
     .feature-icon {
-        font-size: 1.3rem;
-        margin-bottom: 0.2rem;
-        display: inline-block;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
     }
     
     .feature-title {
-        font-size: 0.7rem;
-        font-weight: 700;
+        font-size: 0.85rem;
+        font-weight: 600;
         color: white;
-        margin-bottom: 0.1rem;
+        margin-bottom: 0.2rem;
     }
     
     .feature-desc {
-        font-size: 0.55rem;
-        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.5);
     }
     
-    /* Progress bar */
+    /* Sidebar styling */
+    [data-testid="stSidebar"] {
+        background: rgba(15, 12, 41, 0.95);
+        backdrop-filter: blur(10px);
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    [data-testid="stSidebar"] .stMarkdown {
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    /* Progress bar customization */
     .stProgress > div > div {
         background: linear-gradient(90deg, #a8edea, #fed6e3);
         border-radius: 20px;
     }
     
-    /* Button */
+    /* Button styling */
     .stButton > button {
         background: linear-gradient(135deg, #a8edea, #fed6e3);
         color: #1a1a2e;
         border: none;
         border-radius: 40px;
-        padding: 0.4rem 1rem;
+        padding: 0.6rem 1.5rem;
         font-weight: 600;
-        font-size: 0.8rem;
         transition: all 0.3s ease;
         width: 100%;
     }
     
     .stButton > button:hover {
-        transform: translateY(-2px);
+        transform: scale(0.98);
         box-shadow: 0 5px 20px rgba(168, 237, 234, 0.3);
-    }
-    
-    /* File uploader */
-    .stFileUploader {
-        width: 100%;
     }
     
     /* Footer */
     .footer {
         text-align: center;
-        padding: 1rem;
-        color: rgba(255, 255, 255, 0.3);
-        font-size: 0.65rem;
+        padding: 2rem;
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.75rem;
         border-top: 1px solid rgba(255, 255, 255, 0.05);
-        margin-top: 1rem;
+        margin-top: 2rem;
     }
     
-    /* Responsive */
-    @media (max-width: 992px) {
-        .hero-title { font-size: 2.2rem; }
-        .prediction { font-size: 1.4rem; }
-        .metric-value { font-size: 1.1rem; }
-    }
-    
+    /* Responsive design */
     @media (max-width: 768px) {
-        .hero-title { font-size: 1.6rem; }
-        .hero-subtitle { font-size: 0.7rem; }
-        .prediction { font-size: 1.1rem; }
-        .features { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
-        .glass-card { padding: 0.8rem; }
-        .metric-grid { gap: 0.4rem; }
+        .hero-title {
+            font-size: 2rem;
+        }
+        
+        .prediction {
+            font-size: 1.5rem;
+        }
+        
+        .features {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+        }
+        
+        .glass-card {
+            padding: 1rem;
+        }
+        
+        .metric-grid {
+            gap: 0.5rem;
+        }
     }
     
     @media (max-width: 480px) {
-        .hero-title { font-size: 1.2rem; }
-        .prediction { font-size: 1rem; }
-        .features { grid-template-columns: 1fr; }
-        .metric-grid { grid-template-columns: 1fr; gap: 0.4rem; }
+        .features {
+            grid-template-columns: 1fr;
+        }
     }
     
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-        width: 5px;
-        height: 5px;
-    }
-    
-    ::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 10px;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-        background: linear-gradient(135deg, #a8edea, #fed6e3);
-        border-radius: 10px;
+    /* Custom file uploader */
+    .stFileUploader {
+        width: 100%;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -386,22 +325,8 @@ st.markdown("""
 
 CIFAR_MEAN = (0.4914, 0.4822, 0.4465)
 CIFAR_STD = (0.2470, 0.2435, 0.2616)
-
-# Enhanced class names with emojis and descriptions
-CLASSES = [
-    {'name': 'Plane', 'emoji': '✈️', 'desc': 'Aircraft / Airplane', 'color': '#a8edea'},
-    {'name': 'Car', 'emoji': '🚗', 'desc': 'Automobile / Sedan', 'color': '#90ee90'},
-    {'name': 'Bird', 'emoji': '🐦', 'desc': 'Bird species', 'color': '#ffb347'},
-    {'name': 'Cat', 'emoji': '🐱', 'desc': 'Feline / Cat', 'color': '#ff6b6b'},
-    {'name': 'Deer', 'emoji': '🦌', 'desc': 'Wild deer', 'color': '#d4a5a5'},
-    {'name': 'Dog', 'emoji': '🐕', 'desc': 'Canine / Dog', 'color': '#c9a0dc'},
-    {'name': 'Frog', 'emoji': '🐸', 'desc': 'Amphibian / Frog', 'color': '#7dd3fc'},
-    {'name': 'Horse', 'emoji': '🐴', 'desc': 'Equine / Horse', 'color': '#f0a3a3'},
-    {'name': 'Ship', 'emoji': '🚢', 'desc': 'Vessel / Ship', 'color': '#5dade2'},
-    {'name': 'Truck', 'emoji': '🚛', 'desc': 'Heavy vehicle', 'color': '#e5989b'}
-]
-
-CLASS_NAMES = [f"{c['emoji']} {c['name']}" for c in CLASSES]
+CLASSES = ['🛩️ Plane', '🚗 Car', '🐦 Bird', '🐱 Cat', '🦌 Deer', 
+           '🐕 Dog', '🐸 Frog', '🐴 Horse', '🚢 Ship', '🚛 Truck']
 
 # ============================================
 # MODEL DEFINITIONS
@@ -540,7 +465,7 @@ class AdvancedCNN(nn.Module):
         return x
 
 # ============================================
-# MODEL LOADING
+# LOAD MODEL
 # ============================================
 
 @st.cache_resource
@@ -596,62 +521,31 @@ def preprocess_image(image):
 model, device, model_name, best_acc = load_model()
 
 # ============================================
-# SIDEBAR - FIXED (لن يختفي أبداً)
+# SIDEBAR
 # ============================================
 
-# تأكد من أن الشريط الجانبي موجود ولن يختفي
 with st.sidebar:
-    st.markdown("""
-    <div style="text-align: center; padding: 0.5rem 0;">
-        <div style="font-size: 1.8rem;">🎨</div>
-        <div style="font-weight: 700; font-size: 1rem; background: linear-gradient(135deg, #a8edea, #fed6e3); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CIFAR-10 Vision</div>
-        <div style="font-size: 0.6rem; color: rgba(255,255,255,0.4);">Advanced Classification</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("### 🎯 CIFAR-10 Vision")
+    st.caption("Advanced Image Classification")
     
     st.markdown("---")
     
-    # Model info
-    st.markdown("### 🤖 Model")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown(f"""
-        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 0.35rem; text-align: center;">
-            <div style="font-size: 0.5rem; color: rgba(255,255,255,0.4);">Architecture</div>
-            <div style="font-weight: 700; font-size: 0.75rem;">{model_name}</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with col2:
-        st.markdown(f"""
-        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 0.35rem; text-align: center;">
-            <div style="font-size: 0.5rem; color: rgba(255,255,255,0.4);">Accuracy</div>
-            <div style="font-weight: 700; font-size: 0.75rem; color: #a8edea;">{best_acc:.1f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown("**🤖 Model**")
+    st.code(model_name, language=None)
+    
+    st.markdown("**📊 Accuracy**")
+    st.markdown(f"<span style='font-size: 1.8rem; font-weight: 700; color: #a8edea;'>{best_acc:.1f}%</span>", unsafe_allow_html=True)
     
     st.markdown("---")
     
-    # Supported classes
-    st.markdown("### 📋 Classes")
+    st.markdown("**📋 Classes**")
+    cols = st.columns(2)
     for i, cls in enumerate(CLASSES):
-        st.markdown(f"""
-        <div style="background: rgba(100,100,150,0.12); border-radius: 8px; padding: 0.15rem 0.4rem; margin: 0.15rem 0; border-left: 2px solid {cls['color']};">
-            <span style="font-size: 0.8rem;">{cls['emoji']}</span>
-            <span style="font-size: 0.65rem; font-weight: 500;">{cls['name']}</span>
-            <span style="font-size: 0.55rem; color: rgba(255,255,255,0.35); display: block;">{cls['desc']}</span>
-        </div>
-        """, unsafe_allow_html=True)
+        cols[i%2].markdown(f"- {cls}")
     
     st.markdown("---")
     
-    # Stats
-    st.markdown("### 📊 Dataset")
-    st.metric("Training", "50,000")
-    st.metric("Testing", "10,000")
-    st.metric("Size", "32×32 px")
-    
-    st.markdown("---")
-    st.caption(f"⚡ PyTorch • Streamlit\n📅 {datetime.now().strftime('%B %Y')}")
+    st.caption(f"PyTorch • Streamlit\n{datetime.now().year}")
 
 # ============================================
 # MAIN CONTENT
@@ -661,7 +555,7 @@ with st.sidebar:
 st.markdown("""
 <div class="hero">
     <div class="hero-title">visual intelligence</div>
-    <div class="hero-subtitle">advanced deep learning for CIFAR-10 image classification</div>
+    <div class="hero-subtitle">CIFAR-10 image classification with deep learning</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -669,16 +563,9 @@ st.markdown("""
 col_left, col_right = st.columns([1, 1], gap="large")
 
 with col_left:
-    st.markdown("""
-    <div class="glass-card">
-        <div class="section-header">
-            <span class="section-icon">📸</span>
-            <div>
-                <div class="section-title">Upload Image</div>
-                <div class="section-subtitle">Supported: JPG, PNG, JPEG</div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">📸 Upload Image</div>', unsafe_allow_html=True)
+    st.caption("supported formats: JPG, PNG, JPEG")
     
     uploaded = st.file_uploader("", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
     
@@ -689,32 +576,20 @@ with col_left:
         st.image(image, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
         
-        # Image info
-        file_size = len(uploaded.getvalue()) / 1024
-        st.markdown(f"""
-        <div style="display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.6rem;">
-            <span class="badge">📏 {image.size[0]}×{image.size[1]}px</span>
-            <span class="badge">💾 {file_size:.1f} KB</span>
-            <span class="badge">🎨 {image.mode}</span>
-        </div>
-        """, unsafe_allow_html=True)
+        # Image info badges
+        c1, c2, c3 = st.columns(3)
+        c1.markdown(f'<span class="badge badge-primary">📏 {image.size[0]}px</span>', unsafe_allow_html=True)
+        c2.markdown(f'<span class="badge badge-primary">📐 {image.size[1]}px</span>', unsafe_allow_html=True)
+        c3.markdown(f'<span class="badge badge-primary">🎨 {image.mode}</span>', unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
 
 with col_right:
-    st.markdown("""
-    <div class="glass-card">
-        <div class="section-header">
-            <span class="section-icon">🎯</span>
-            <div>
-                <div class="section-title">Prediction Result</div>
-                <div class="section-subtitle">Real-time AI inference</div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">🎯 Prediction Result</div>', unsafe_allow_html=True)
     
     if uploaded:
-        with st.spinner("Analyzing image..."):
+        with st.spinner("analyzing..."):
             tensor = preprocess_image(image).to(device)
             with torch.no_grad():
                 out = model(tensor)
@@ -723,18 +598,16 @@ with col_right:
                 conf = probs[0][pred].item()
                 all_probs = probs[0].cpu().numpy()
         
-        predicted_class = CLASSES[pred]
+        # Result card
         st.markdown(f"""
         <div class="result-card">
-            <div style="font-size: 2.2rem; margin-bottom: 0.2rem;">{predicted_class['emoji']}</div>
-            <div class="prediction">{predicted_class['name']}</div>
-            <div class="confidence">confidence {conf*100:.2f}%</div>
-            <div style="font-size: 0.6rem; color: rgba(255,255,255,0.4); margin-top: 0.15rem;">{predicted_class['desc']}</div>
+            <div class="prediction">{CLASSES[pred]}</div>
+            <div class="confidence">confidence {conf*100:.1f}%</div>
         </div>
         """, unsafe_allow_html=True)
         
-        # Confidence gauge
-        st.markdown("#### Confidence")
+        # Confidence bar
+        st.markdown("#### confidence")
         st.progress(conf)
         
         # Metrics
@@ -743,135 +616,111 @@ with col_right:
         m1, m2, m3 = st.columns(3)
         m1.markdown(f"""
         <div class="metric-item">
-            <div class="metric-value">{conf*100:.1f}%</div>
-            <div class="metric-label">Confidence</div>
+            <div class="metric-value">{conf*100:.0f}%</div>
+            <div class="metric-label">confidence</div>
         </div>
         """, unsafe_allow_html=True)
         m2.markdown(f"""
         <div class="metric-item">
-            <div class="metric-value">{model_name.split('_')[0]}</div>
-            <div class="metric-label">Architecture</div>
+            <div class="metric-value">{model_name}</div>
+            <div class="metric-label">architecture</div>
         </div>
         """, unsafe_allow_html=True)
         m3.markdown(f"""
         <div class="metric-item">
-            <div class="metric-value">{best_acc:.1f}%</div>
-            <div class="metric-label">Model Acc</div>
+            <div class="metric-value">{best_acc:.0f}%</div>
+            <div class="metric-label">model acc</div>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown('</div>', unsafe_allow_html=True)
         
-        # ============================================
-        # TOP 3 PREDICTIONS CHART (بدون أعمدة)
-        # ============================================
-        st.markdown("#### 🏆 Top 3 Predictions")
+        # Probability chart - FIXED VERSION (without rgba issues)
+        st.markdown("#### probabilities")
+        fig, ax = plt.subplots(figsize=(8, 3.5))
         
-        # Get top 3 indices
-        top_3_indices = np.argsort(all_probs)[-3:][::-1]
+        # Simple colors that always work
+        bar_colors = []
+        for i in range(10):
+            if i == pred:
+                bar_colors.append('#a8edea')
+            else:
+                bar_colors.append('#4a4a6a')
         
-        # Display as horizontal bars without matplotlib chart
-        for rank, idx in enumerate(top_3_indices, 1):
-            cls = CLASSES[idx]
-            prob_val = all_probs[idx] * 100
-            # Medal emoji based on rank
-            medal = ['🥇', '🥈', '🥉'][rank-1]
-            
-            st.markdown(f"""
-            <div style="background: rgba(255,255,255,0.05); border-radius: 16px; padding: 0.5rem; margin: 0.4rem 0; transition: all 0.2s ease;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="font-size: 1.3rem;">{medal}</span>
-                        <span style="font-size: 1.1rem;">{cls['emoji']}</span>
-                        <span style="font-weight: 700; font-size: 0.9rem;">{cls['name']}</span>
-                    </div>
-                    <div style="font-weight: 800; font-size: 1rem; color: {'#a8edea' if rank == 1 else 'rgba(255,255,255,0.6)'};">{prob_val:.1f}%</div>
-                </div>
-                <div style="background: rgba(255,255,255,0.1); border-radius: 12px; height: 8px; overflow: hidden;">
-                    <div style="width: {prob_val}%; height: 100%; background: linear-gradient(90deg, {cls['color']}, #a8edea); border-radius: 12px; animation: slideIn 0.5s ease-out;"></div>
-                </div>
-            </div>
-            <style>
-                @keyframes slideIn {{
-                    from {{ width: 0%; }}
-                    to {{ width: {prob_val}%; }}
-                }}
-            </style>
-            """, unsafe_allow_html=True)
+        bars = ax.barh(CLASSES, all_probs * 100, color=bar_colors, height=0.6)
+        ax.set_xlim(0, 100)
+        ax.set_xlabel('%', fontsize=9)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_color('#888888')
+        ax.spines['bottom'].set_color('#888888')
+        ax.tick_params(axis='y', labelsize=9)
+        ax.tick_params(axis='x', labelsize=8)
         
-        # Show remaining classes in expander
-        other_indices = [i for i in range(10) if i not in top_3_indices]
-        other_indices_sorted = sorted(other_indices, key=lambda x: all_probs[x], reverse=True)
+        for bar, prob in zip(bars, all_probs):
+            if prob * 100 > 5:
+                ax.text(bar.get_width() + 1, bar.get_y() + bar.get_height()/2, 
+                       f'{prob*100:.0f}%', va='center', fontsize=8, fontweight='500')
         
-        with st.expander(f"📋 Other classes ({len(other_indices)} remaining)"):
-            for idx in other_indices_sorted:
-                cls = CLASSES[idx]
-                prob_val = all_probs[idx] * 100
-                st.markdown(f"""
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <div>
-                        <span style="font-size: 0.9rem;">{cls['emoji']}</span>
-                        <span style="font-size: 0.7rem; margin-left: 0.3rem;">{cls['name']}</span>
-                    </div>
-                    <div style="font-weight: 600; font-size: 0.7rem; color: rgba(255,255,255,0.5);">{prob_val:.1f}%</div>
-                </div>
-                <div style="background: rgba(255,255,255,0.05); border-radius: 8px; height: 3px; margin: 0.1rem 0;">
-                    <div style="width: {prob_val}%; height: 100%; background: linear-gradient(90deg, {cls['color']}, #a8edea); border-radius: 8px;"></div>
-                </div>
-                """, unsafe_allow_html=True)
+        plt.tight_layout()
+        st.pyplot(fig)
         
     else:
         st.markdown("""
-        <div style="text-align: center; padding: 1.5rem 1rem;">
-            <div style="font-size: 2.5rem; opacity: 0.4; margin-bottom: 0.5rem;">🖼️</div>
-            <div style="font-weight: 600; margin-bottom: 0.2rem; font-size: 0.9rem;">No Image Selected</div>
-            <div style="font-size: 0.65rem; color: rgba(255,255,255,0.35);">
-                Upload an image from the left panel
-            </div>
+        <div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">
+            <span style="font-size: 2rem;">⬅️</span>
+            <p style="margin-top: 0.5rem;">upload an image<br>to begin</p>
         </div>
         """, unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
 
 # Features Section
-st.markdown("""
-<div style="text-align: center; margin: 0.5rem 0 0.3rem 0;">
-    <div style="font-weight: 700; font-size: 1rem; background: linear-gradient(135deg, #a8edea, #fed6e3); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Key Features</div>
-</div>
-""", unsafe_allow_html=True)
-
 st.markdown('<div class="features">', unsafe_allow_html=True)
 
-features = [
-    {'icon': '🧠', 'title': 'Deep Learning', 'desc': 'CNN Architecture'},
-    {'icon': '⚡', 'title': 'Real-time', 'desc': 'Fast Inference'},
-    {'icon': '🎯', 'title': 'Top-3 Focus', 'desc': 'Smart Display'},
-    {'icon': '📱', 'title': 'Responsive', 'desc': 'Mobile Ready'},
-    {'icon': '🔬', 'title': 'Advanced', 'desc': 'Transfer Learning'},
-    {'icon': '🎨', 'title': 'Modern UI', 'desc': 'Glass Design'},
-    {'icon': '🏆', 'title': 'Medal View', 'desc': 'Easy Reading'},
-    {'icon': '🛡️', 'title': 'Robust', 'desc': 'Error Handling'}
-]
+f1, f2, f3, f4 = st.columns(4)
 
-for i in range(0, len(features), 4):
-    cols = st.columns(4)
-    for j, col in enumerate(cols):
-        if i + j < len(features):
-            f = features[i + j]
-            with col:
-                st.markdown(f"""
-                <div class="feature-item">
-                    <div class="feature-icon">{f['icon']}</div>
-                    <div class="feature-title">{f['title']}</div>
-                    <div class="feature-desc">{f['desc']}</div>
-                </div>
-                """, unsafe_allow_html=True)
+with f1:
+    st.markdown("""
+    <div class="feature-item">
+        <div class="feature-icon">🧠</div>
+        <div class="feature-title">Deep Learning</div>
+        <div class="feature-desc">ResNet architecture</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with f2:
+    st.markdown("""
+    <div class="feature-item">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Real-time</div>
+        <div class="feature-desc">Fast inference</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with f3:
+    st.markdown("""
+    <div class="feature-item">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">Accurate</div>
+        <div class="feature-desc">89%+ accuracy</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with f4:
+    st.markdown("""
+    <div class="feature-item">
+        <div class="feature-icon">📱</div>
+        <div class="feature-title">Responsive</div>
+        <div class="feature-desc">Mobile ready</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Footer
-st.markdown(f"""
+st.markdown("""
 <div class="footer">
-    CIFAR-10 Dataset • {model_name} Architecture • Deployed with Streamlit
+    <p>CIFAR-10 • ResNet Architecture • Deployed with Streamlit</p>
 </div>
 """, unsafe_allow_html=True)
