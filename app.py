@@ -873,26 +873,9 @@ with col_left:
             <span class="section-icon">📸</span>
             <div>
                 <div class="section-title">Upload Image</div>
-                <div class="section-subtitle">Click or drag & drop</div>
+                <div class="section-subtitle">Supported: JPG, PNG, JPEG</div>
             </div>
         </div>
-    """, unsafe_allow_html=True)
-    
-    # تخصيص نص الرفع
-    st.markdown("""
-    <style>
-        .stFileUploader div[data-testid="stMarkdownContainer"] {
-            display: none;
-        }
-        .stFileUploader::before {
-            content: "📁 Max 5MB per file • JPG, JPEG, PNG";
-            display: block;
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.5);
-            text-align: center;
-            margin-bottom: 0.5rem;
-        }
-    </style>
     """, unsafe_allow_html=True)
     
     uploaded = st.file_uploader("", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
