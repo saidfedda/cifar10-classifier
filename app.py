@@ -1,4 +1,4 @@
-# app.py - ULTIMATE MODERN DESIGN WITH WORKING SIDEBAR TOGGLE
+# app.py - ULTIMATE MODERN DESIGN WITH FIXED SIDEBAR
 # Fully responsive with glass morphism, smooth animations, and interactive elements
 
 import streamlit as st
@@ -20,7 +20,7 @@ st.set_page_config(
     page_title="CIFAR-10 Vision AI | Advanced Image Classifier",
     page_icon="🎨",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded"  # يبدأ مفتوحاً، لكن يمكن إغلاقه
 )
 
 # ============================================
@@ -48,7 +48,7 @@ st.markdown("""
         background-attachment: fixed;
     }
     
-    /* Sidebar styling - مع إبقاء الزر يعمل */
+    /* Sidebar styling - مع إبقاء الزر */
     [data-testid="stSidebar"] {
         background: rgba(5, 5, 10, 0.98) !important;
         backdrop-filter: blur(15px) !important;
@@ -56,31 +56,17 @@ st.markdown("""
         box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3) !important;
     }
     
-    /* تخصيص زر إظهار/إخفاء الشريط الجانبي - يعمل بشكل طبيعي */
+    /* تخصيص زر إظهار/إخفاء الشريط الجانبي */
     [data-testid="stSidebarCollapsedControl"] {
-        background: rgba(100, 150, 150, 0.3) !important;
-        border-radius: 0 12px 12px 0 !important;
-        margin-top: 100px !important;
-        padding: 10px 6px !important;
-        transition: all 0.3s ease !important;
-        cursor: pointer !important;
-        z-index: 999 !important;
+        background: rgba(100, 150, 150, 0.2) !important;
+        border-radius: 0 10px 10px 0 !important;
     }
     
     [data-testid="stSidebarCollapsedControl"]:hover {
-        background: rgba(100, 150, 150, 0.6) !important;
-        transform: scale(1.05) !important;
+        background: rgba(100, 150, 150, 0.4) !important;
     }
     
-    /* أيقونة الزر */
-    [data-testid="stSidebarCollapsedControl"] svg {
-        color: #8ec5c2 !important;
-        width: 22px !important;
-        height: 22px !important;
-        fill: #8ec5c2 !important;
-    }
-    
-    /* Glass morphism card */
+    /* Glass morphism card - enhanced mirror effect */
     .glass-card {
         background: rgba(10, 10, 20, 0.6);
         backdrop-filter: blur(12px) brightness(1.1);
@@ -697,7 +683,9 @@ with st.sidebar:
     
     st.markdown("---")
     
+    # ============================================
     # MODEL INFORMATION SECTION
+    # ============================================
     st.markdown("""
     <div style="margin-bottom: 0.5rem;">
         <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.8rem;">
@@ -707,6 +695,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
     
+    # Model details grid
     col_a, col_b = st.columns(2)
     with col_a:
         st.markdown(f"""
@@ -742,7 +731,9 @@ with st.sidebar:
     
     st.markdown("---")
     
+    # ============================================
     # SUPPORTED CLASSES SECTION
+    # ============================================
     st.markdown("""
     <div style="margin-bottom: 0.5rem;">
         <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.8rem;">
@@ -752,6 +743,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
     
+    # Display classes in two columns
     for i in range(0, len(CLASSES), 2):
         cols = st.columns(2)
         for j, col in enumerate(cols):
@@ -767,7 +759,9 @@ with st.sidebar:
     
     st.markdown("---")
     
+    # ============================================
     # DATASET SPECIFICATIONS SECTION
+    # ============================================
     st.markdown("""
     <div style="margin-bottom: 0.5rem;">
         <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.8rem;">
@@ -777,6 +771,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
     
+    # Dataset specs grid
     spec_col1, spec_col2, spec_col3 = st.columns(3)
     with spec_col1:
         st.markdown("""
@@ -819,7 +814,9 @@ with st.sidebar:
     
     st.markdown("---")
     
+    # ============================================
     # TECHNOLOGY STACK
+    # ============================================
     st.markdown("""
     <div style="margin-bottom: 0.5rem;">
         <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.8rem;">
@@ -851,6 +848,7 @@ with st.sidebar:
     
     st.markdown("---")
     
+    # Footer in sidebar
     st.caption(f"⚡ Real-time Inference\n📅 {datetime.now().strftime('%B %Y')}")
 
 # ============================================
@@ -889,6 +887,7 @@ with col_left:
         st.image(image, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
         
+        # Image info
         file_size = len(uploaded.getvalue()) / 1024
         st.markdown(f"""
         <div style="display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.6rem;">
@@ -932,9 +931,11 @@ with col_right:
         </div>
         """, unsafe_allow_html=True)
         
+        # Confidence gauge
         st.markdown("#### Confidence")
         st.progress(conf)
         
+        # Metrics
         st.markdown('<div class="metric-grid">', unsafe_allow_html=True)
         
         m1, m2, m3 = st.columns(3)
@@ -959,11 +960,15 @@ with col_right:
         
         st.markdown('</div>', unsafe_allow_html=True)
         
+        # ============================================
         # TOP 3 PREDICTIONS
+        # ============================================
         st.markdown("#### 🏆 Top 3 Predictions")
         
+        # Get top 3 indices
         top_3_indices = np.argsort(all_probs)[-3:][::-1]
         
+        # Display top 3 predictions
         for rank, idx in enumerate(top_3_indices, 1):
             cls = CLASSES[idx]
             prob_val = all_probs[idx] * 100
@@ -985,6 +990,7 @@ with col_right:
             </div>
             """, unsafe_allow_html=True)
         
+        # Show remaining classes in expander
         other_indices = [i for i in range(10) if i not in top_3_indices]
         other_indices_sorted = sorted(other_indices, key=lambda x: all_probs[x], reverse=True)
         
