@@ -1,4 +1,4 @@
-# app.py - ULTIMATE MODERN DESIGN WITH FIXED SIDEBAR
+# app.py - ULTIMATE MODERN DESIGN WITH DARKER THEME & GLASS EFFECTS
 # Fully responsive with glass morphism, smooth animations, and interactive elements
 
 import streamlit as st
@@ -20,57 +20,8 @@ st.set_page_config(
     page_title="CIFAR-10 Vision AI | Advanced Image Classifier",
     page_icon="🎨",
     layout="wide",
-    initial_sidebar_state="expanded"  # مهم: يضمن فتح الشريط الجانبي
+    initial_sidebar_state="expanded"
 )
-
-# ============================================
-# FORCE SIDEBAR VISIBILITY - CRITICAL FIX
-# ============================================
-# هذا الكود يضمن أن الشريط الجانبي يبقى ظاهراً دائماً
-st.markdown("""
-<style>
-    /* Force sidebar to always be visible - FIX */
-    [data-testid="stSidebar"] {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        transform: translateX(0) !important;
-        background: rgba(5, 5, 10, 0.98) !important;
-        backdrop-filter: blur(15px) !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
-        min-width: 280px !important;
-        width: 280px !important;
-        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3) !important;
-        z-index: 999 !important;
-    }
-    
-    /* Hide the collapse button completely */
-    [data-testid="stSidebarCollapsedControl"],
-    [data-testid="stSidebarCollapseButton"],
-    button[kind="header"] {
-        display: none !important;
-    }
-    
-    /* Prevent sidebar from collapsing on resize */
-    @media (max-width: 768px) {
-        [data-testid="stSidebar"] {
-            min-width: 260px !important;
-            width: 260px !important;
-        }
-    }
-    
-    /* Adjust main content to account for fixed sidebar */
-    .main .block-container {
-        padding-left: 2rem !important;
-        padding-right: 2rem !important;
-    }
-    
-    /* Ensure content doesn't overlap */
-    section.main > div {
-        margin-left: 0 !important;
-    }
-</style>
-""", unsafe_allow_html=True)
 
 # ============================================
 # ADVANCED CUSTOM CSS - DARKER THEME + GLASS EFFECTS
@@ -95,6 +46,20 @@ st.markdown("""
     .stApp {
         background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
         background-attachment: fixed;
+    }
+    
+    /* Force sidebar */
+    [data-testid="stSidebar"] {
+        background: rgba(5, 5, 10, 0.98) !important;
+        backdrop-filter: blur(15px) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+        min-width: 280px !important;
+        width: 280px !important;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    [data-testid="stSidebarCollapsedControl"] {
+        display: none !important;
     }
     
     /* Glass morphism card - enhanced mirror effect */
@@ -686,10 +651,9 @@ def preprocess_image(image):
 model, device, model_name, best_acc = load_model()
 
 # ============================================
-# SIDEBAR - ENHANCED WITH COMPLETE INFO (FIXED)
+# SIDEBAR - ENHANCED WITH COMPLETE INFO
 # ============================================
 
-# هذا هو الشريط الجانبي - لن يختفي أبداً
 with st.sidebar:
     # Logo and title
     st.markdown("""
@@ -769,7 +733,7 @@ with st.sidebar:
             if i + j < len(CLASSES):
                 cls = CLASSES[i + j]
                 col.markdown(f"""
-                <div style="background: rgba(100,100,150,0.08); border-radius: 10px; padding: 0.2rem 0.4rem; margin: 0.2rem 0; border-left: 2px solid {cls['color']};">
+                <div style="background: rgba({int(cls['color'][1:3], 16) if cls['color'].startswith('#') else 100}, {int(cls['color'][3:5], 16) if cls['color'].startswith('#') else 150}, {int(cls['color'][5:7], 16) if cls['color'].startswith('#') else 150}, 0.08); border-radius: 10px; padding: 0.2rem 0.4rem; margin: 0.2rem 0; border-left: 2px solid {cls['color']};">
                     <span style="font-size: 0.8rem;">{cls['emoji']}</span>
                     <span style="font-size: 0.65rem; font-weight: 500; margin-left: 0.2rem;">{cls['name']}</span>
                     <span style="font-size: 0.5rem; color: rgba(255,255,255,0.35); display: block;">{cls['desc']}</span>
