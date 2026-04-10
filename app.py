@@ -1,4 +1,4 @@
-# app.py - ULTIMATE MODERN DESIGN WITH DARKER THEME & GLASS EFFECTS
+# app.py - ULTIMATE MODERN DESIGN WITH FIXED SIDEBAR
 # Fully responsive with glass morphism, smooth animations, and interactive elements
 
 import streamlit as st
@@ -20,11 +20,11 @@ st.set_page_config(
     page_title="CIFAR-10 Vision AI | Advanced Image Classifier",
     page_icon="🎨",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded"  # يبدأ مفتوحاً، لكن يمكن إغلاقه
 )
 
 # ============================================
-# ADVANCED CUSTOM CSS - DARKER THEME + GLASS EFFECTS
+# CUSTOM CSS - DARKER THEME + GLASS EFFECTS
 # ============================================
 
 st.markdown("""
@@ -48,18 +48,22 @@ st.markdown("""
         background-attachment: fixed;
     }
     
-    /* Force sidebar */
+    /* Sidebar styling - مع إبقاء الزر */
     [data-testid="stSidebar"] {
         background: rgba(5, 5, 10, 0.98) !important;
         backdrop-filter: blur(15px) !important;
         border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
-        min-width: 280px !important;
-        width: 280px !important;
         box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3) !important;
     }
     
+    /* تخصيص زر إظهار/إخفاء الشريط الجانبي */
     [data-testid="stSidebarCollapsedControl"] {
-        display: none !important;
+        background: rgba(100, 150, 150, 0.2) !important;
+        border-radius: 0 10px 10px 0 !important;
+    }
+    
+    [data-testid="stSidebarCollapsedControl"]:hover {
+        background: rgba(100, 150, 150, 0.4) !important;
     }
     
     /* Glass morphism card - enhanced mirror effect */
@@ -147,6 +151,19 @@ st.markdown("""
         font-size: 0.9rem;
         color: rgba(255, 255, 255, 0.4);
         font-weight: 400;
+    }
+    
+    /* تكبير عنوان visual intelligence على الهاتف فقط */
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.2rem !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .hero-title {
+            font-size: 1.8rem !important;
+        }
     }
     
     /* Section headers */
@@ -396,13 +413,13 @@ st.markdown("""
     
     /* Responsive */
     @media (max-width: 992px) {
-        .hero-title { font-size: 2.2rem; }
+        .hero-title { font-size: 2.5rem; }
         .prediction { font-size: 1.4rem; }
         .metric-value { font-size: 1.1rem; }
     }
     
     @media (max-width: 768px) {
-        .hero-title { font-size: 1.6rem; }
+        .hero-title { font-size: 1.8rem; }
         .hero-subtitle { font-size: 0.7rem; }
         .prediction { font-size: 1.1rem; }
         .features { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
@@ -411,7 +428,7 @@ st.markdown("""
     }
     
     @media (max-width: 480px) {
-        .hero-title { font-size: 1.2rem; }
+        .hero-title { font-size: 1.4rem; }
         .prediction { font-size: 1rem; }
         .features { grid-template-columns: 1fr; }
         .metric-grid { grid-template-columns: 1fr; gap: 0.4rem; }
@@ -733,7 +750,7 @@ with st.sidebar:
             if i + j < len(CLASSES):
                 cls = CLASSES[i + j]
                 col.markdown(f"""
-                <div style="background: rgba({int(cls['color'][1:3], 16) if cls['color'].startswith('#') else 100}, {int(cls['color'][3:5], 16) if cls['color'].startswith('#') else 150}, {int(cls['color'][5:7], 16) if cls['color'].startswith('#') else 150}, 0.08); border-radius: 10px; padding: 0.2rem 0.4rem; margin: 0.2rem 0; border-left: 2px solid {cls['color']};">
+                <div style="background: rgba(100,100,150,0.08); border-radius: 10px; padding: 0.2rem 0.4rem; margin: 0.2rem 0; border-left: 2px solid {cls['color']};">
                     <span style="font-size: 0.8rem;">{cls['emoji']}</span>
                     <span style="font-size: 0.65rem; font-weight: 500; margin-left: 0.2rem;">{cls['name']}</span>
                     <span style="font-size: 0.5rem; color: rgba(255,255,255,0.35); display: block;">{cls['desc']}</span>
