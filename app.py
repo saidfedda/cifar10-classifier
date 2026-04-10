@@ -873,12 +873,17 @@ with col_left:
             <span class="section-icon">📸</span>
             <div>
                 <div class="section-title">Upload Image</div>
-                <div class="section-subtitle">Supported: JPG, PNG, JPEG </div>
+                <div class="section-subtitle">Drag & drop or click to browse</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
     
     uploaded = st.file_uploader("", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
+    
+    # النص المخصص الجديد (يحل محل 200MB)
+    st.caption("📁 Max 5MB per file • JPG, JPEG, PNG")
+    
+    
     
     if uploaded:
         image = Image.open(uploaded).convert('RGB')
