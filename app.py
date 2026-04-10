@@ -873,25 +873,12 @@ with col_left:
             <span class="section-icon">📸</span>
             <div>
                 <div class="section-title">Upload Image</div>
-                <div class="section-subtitle">Click or drag & drop</div>
+                <div class="section-subtitle">Supported: JPG, PNG, JPEG</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
     
-    # إخفاء النص الأصلي بالكامل
-    st.markdown("""
-    <style>
-        /* إخفاء كل النصوص داخل file uploader */
-        .stFileUploader div[data-testid="stMarkdownContainer"] {
-            display: none !important;
-        }
-    </style>
-    """, unsafe_allow_html=True)
-    
     uploaded = st.file_uploader("", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
-    
-    # إضافة النص الجديد أسفل المربع
-    st.caption("📁 Max 5MB per file • JPG, JPEG, PNG")
     
     if uploaded:
         image = Image.open(uploaded).convert('RGB')
@@ -1079,3 +1066,4 @@ st.markdown(f"""
     CIFAR-10 Dataset • {model_name} Architecture • Deployed with Streamlit
 </div>
 """, unsafe_allow_html=True)
+
