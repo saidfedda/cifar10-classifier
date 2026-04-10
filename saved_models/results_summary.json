@@ -1,0 +1,34 @@
+{
+  "models": {
+    "ANN_Adam": {
+      "test_accuracy": 55.51,
+      "test_f1": 0.552944755337765,
+      "best_val_accuracy": 56.31
+    },
+    "CNN_Adam_Aug": {
+      "test_accuracy": 88.32,
+      "test_f1": 0.8813812546736653,
+      "best_val_accuracy": 88.91
+    },
+    "AdvancedCNN_Adam": {
+      "test_accuracy": 89.05,
+      "test_f1": 0.889531577268285,
+      "best_val_accuracy": 89.62
+    }
+  },
+  "best_model": "AdvancedCNN_Adam",
+  "best_accuracy": 89.05,
+  "num_classes": 10,
+  "classes": [
+    "plane",
+    "car",
+    "bird",
+    "cat",
+    "deer",
+    "dog",
+    "frog",
+    "horse",
+    "ship",
+    "truck"
+  ]
+}
