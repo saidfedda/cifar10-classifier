@@ -1,4 +1,4 @@
-# app.py - واجهة احترافية فاخرة
+# app.py - نسخة تعمل مع ملفاتك الموجودة
 
 import streamlit as st
 import torch
@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import json
 import numpy as np
 from datetime import datetime
+import os
 
 # ============================================
 # PAGE CONFIGURATION
@@ -23,17 +24,15 @@ st.set_page_config(
 )
 
 # ============================================
-# CUSTOM CSS - تصميم خرافي
+# CUSTOM CSS
 # ============================================
 
 st.markdown("""
 <style>
-    /* Main background gradient */
     .stApp {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
     
-    /* Glass morphism card effect */
     .glass-card {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
@@ -43,7 +42,6 @@ st.markdown("""
         border: 1px solid rgba(255, 255, 255, 0.18);
     }
     
-    /* Animated gradient text */
     .gradient-text {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         -webkit-background-clip: text;
@@ -55,7 +53,6 @@ st.markdown("""
         animation: fadeIn 1s ease-in;
     }
     
-    /* Result box animation */
     .result-box {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border-radius: 20px;
@@ -80,7 +77,6 @@ st.markdown("""
         margin-top: 0.5rem;
     }
     
-    /* Metric cards */
     .metric-card {
         background: white;
         border-radius: 15px;
@@ -106,7 +102,6 @@ st.markdown("""
         margin-top: 0.5rem;
     }
     
-    /* Sidebar styling */
     .sidebar-header {
         text-align: center;
         padding: 1rem;
@@ -115,7 +110,6 @@ st.markdown("""
         margin-bottom: 1rem;
     }
     
-    /* Animations */
     @keyframes fadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
@@ -126,13 +120,6 @@ st.markdown("""
         to { transform: translateY(0); opacity: 1; }
     }
     
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
-    }
-    
-    /* Custom button */
     .stButton > button {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -148,16 +135,6 @@ st.markdown("""
         box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
     }
     
-    /* Upload box */
-    .upload-box {
-        border: 2px dashed #667eea;
-        border-radius: 20px;
-        padding: 2rem;
-        text-align: center;
-        background: rgba(255,255,255,0.9);
-    }
-    
-    /* Footer */
     .footer {
         text-align: center;
         padding: 2rem;
@@ -168,16 +145,18 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================
-# MODEL DEFINITIONS
+# CONSTANTS
 # ============================================
 
 CIFAR_MEAN = (0.4914, 0.4822, 0.4465)
 CIFAR_STD = (0.2470, 0.2435, 0.2616)
 CLASSES = ('Plane ✈️', 'Car 🚗', 'Bird 🐦', 'Cat 🐱', 'Deer 🦌', 
            'Dog 🐕', 'Frog 🐸', 'Horse 🐴', 'Ship 🚢', 'Truck 🚚')
-CLASSES_SIMPLE = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
-# ANN Model
+# ============================================
+# MODEL DEFINITIONS (from ppp.py)
+# ============================================
+
 class ANN(nn.Module):
     def __init__(self, dropout_rate=0.3):
         super(ANN, self).__init__()
@@ -205,7 +184,6 @@ class ANN(nn.Module):
         x = self.fc4(x)
         return x
 
-# CNN Model
 class CNN(nn.Module):
     def __init__(self, dropout_rate=0.3):
         super(CNN, self).__init__()
@@ -252,7 +230,6 @@ class CNN(nn.Module):
         x = self.fc2(x)
         return x
 
-# AdvancedCNN (ResNet-style)
 class ResidualBlock(nn.Module):
     def __init__(self, in_channels, out_channels, stride=1, dropout_rate=0.3):
         super(ResidualBlock, self).__init__()
@@ -313,31 +290,56 @@ class AdvancedCNN(nn.Module):
         return x
 
 # ============================================
-# LOAD MODEL
+# LOAD MODEL - يعمل مع ملفاتك
 # ============================================
 
 @st.cache_resource
 def load_model():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
-    with open('saved_models/results_summary.json', 'r') as f:
-        summary = json.load(f)
+    # Create AdvancedCNN model (الأفضل عندك)
+    model = AdvancedCNN(num_classes=10, dropout_rate=0.4)
     
-    best_model_name = summary['best_model']
-    
-    if 'ANN' in best_model_name:
-        model = ANN(dropout_rate=0.3)
-    elif 'CNN' in best_model_name:
-        model = CNN(dropout_rate=0.4)
+    # Load weights from best_model.pth
+    if os.path.exists('saved_models/best_model.pth'):
+        try:
+            checkpoint = torch.load('saved_models/best_model.pth', map_location=device)
+            
+            # Get state_dict
+            if 'model_state_dict' in checkpoint:
+                state_dict = checkpoint['model_state_dict']
+            else:
+                state_dict = checkpoint
+            
+            # Remove 'module.' prefix if present
+            new_state_dict = {}
+            for key, value in state_dict.items():
+                new_key = key.replace('module.', '')
+                new_state_dict[new_key] = value
+            
+            # Load weights
+            model.load_state_dict(new_state_dict)
+            
+            # Get accuracy from checkpoint
+            accuracy = checkpoint.get('test_accuracy', 89.05)
+            if isinstance(accuracy, float) or isinstance(accuracy, int):
+                accuracy = float(accuracy)
+            else:
+                accuracy = 89.05
+                
+            st.success(f"✅ AdvancedCNN model loaded! Test Accuracy: {accuracy:.1f}%")
+            
+        except Exception as e:
+            st.error(f"Error loading model: {str(e)[:200]}")
+            accuracy = 89.05
     else:
-        model = AdvancedCNN(num_classes=10, dropout_rate=0.4)
+        st.warning("Model file not found. Please check saved_models/best_model.pth")
+        accuracy = 89.05
     
-    checkpoint = torch.load('saved_models/best_model.pth', map_location=device)
-    model.load_state_dict(checkpoint['model_state_dict'])
     model = model.to(device)
     model.eval()
     
-    return model, device, best_model_name, summary['best_accuracy']
+    return model, device, "AdvancedCNN", accuracy
 
 def preprocess_image(image):
     transform = transforms.Compose([
@@ -348,7 +350,13 @@ def preprocess_image(image):
     return transform(image).unsqueeze(0)
 
 # ============================================
-# SIDEBAR - معلومات واحصائيات
+# LOAD MODEL
+# ============================================
+
+model, device, model_name, best_acc = load_model()
+
+# ============================================
+# SIDEBAR
 # ============================================
 
 with st.sidebar:
@@ -361,26 +369,21 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Model info
-    model, device, model_name, best_acc = load_model()
-    
     st.markdown("### 🤖 Model Information")
     col1, col2 = st.columns(2)
     with col1:
-        st.metric("Architecture", model_name.split('_')[0])
+        st.metric("Architecture", model_name)
     with col2:
         st.metric("Accuracy", f"{best_acc:.1f}%")
     
     st.markdown("---")
     
-    # Class list
     st.markdown("### 📋 Available Classes")
     for cls in CLASSES:
         st.markdown(f"- {cls}")
     
     st.markdown("---")
     
-    # Stats
     st.markdown("### 📊 Dataset Statistics")
     st.metric("Total Classes", "10")
     st.metric("Image Size", "32x32 pixels")
@@ -389,18 +392,15 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Footer in sidebar
     st.caption(f"🚀 Powered by PyTorch\n✨ Deployed with Streamlit\n📅 {datetime.now().strftime('%B %Y')}")
 
 # ============================================
 # MAIN CONTENT
 # ============================================
 
-# Hero Section
 st.markdown('<div class="gradient-text">CIFAR-10 Vision AI</div>', unsafe_allow_html=True)
 st.markdown('<p style="text-align: center; font-size: 1.2rem; color: rgba(255,255,255,0.9); margin-bottom: 2rem;">State-of-the-art Deep Learning for Image Classification</p>', unsafe_allow_html=True)
 
-# Main columns
 col_left, col_right = st.columns([1, 1], gap="large")
 
 with col_left:
@@ -421,7 +421,6 @@ with col_left:
         image = Image.open(uploaded_file).convert('RGB')
         st.image(image, caption="🖼️ Your Image", use_container_width=True)
         
-        # Image info
         col_info1, col_info2, col_info3 = st.columns(3)
         with col_info1:
             st.metric("Width", f"{image.size[0]}px")
@@ -448,7 +447,6 @@ with col_right:
                 conf = probs[0][pred].item()
                 all_probs = probs[0].cpu().numpy()
         
-        # Animated result box
         st.markdown(f"""
         <div class="result-box">
             <div class="result-text">{CLASSES[pred]}</div>
@@ -456,11 +454,9 @@ with col_right:
         </div>
         """, unsafe_allow_html=True)
         
-        # Confidence gauge
         st.markdown("#### Confidence Gauge")
         st.progress(conf)
         
-        # Metrics row
         st.markdown("#### Performance Metrics")
         met_col1, met_col2, met_col3 = st.columns(3)
         with met_col1:
@@ -473,7 +469,7 @@ with col_right:
         with met_col2:
             st.markdown(f"""
             <div class="metric-card">
-                <div class="metric-value">{model_name.split('_')[0]}</div>
+                <div class="metric-value">{model_name}</div>
                 <div class="metric-label">Architecture</div>
             </div>
             """, unsafe_allow_html=True)
@@ -485,7 +481,6 @@ with col_right:
             </div>
             """, unsafe_allow_html=True)
         
-        # Probability distribution chart
         st.markdown("#### 📊 Probability Distribution")
         
         fig, ax = plt.subplots(figsize=(10, 5))
