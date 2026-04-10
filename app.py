@@ -629,11 +629,15 @@ with col_right:
         
         st.markdown('</div>', unsafe_allow_html=True)
         
-        # Probability chart
+               # Probability chart
+                # Probability chart
         st.markdown("#### probabilities")
         fig, ax = plt.subplots(figsize=(8, 3.5))
-        colors = ['#a8edea' if i == pred else 'rgba(168, 237, 234, 0.2)' for i in range(10)]
-        bars = ax.barh(CLASSES, all_probs * 100, color=colors, height=0.6)
+        
+        # تعريف الألوان بشكل صحيح - استخدام ألوان hex فقط
+        bar_colors = ['#a8edea' if i == pred else '#4a4a6a' for i in range(10)]
+        
+        bars = ax.barh(CLASSES, all_probs * 100, color=bar_colors, height=0.6)
         ax.set_xlim(0, 100)
         ax.set_xlabel('%', fontsize=9)
         ax.set_facecolor('transparent')
