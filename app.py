@@ -1,5 +1,5 @@
-# app.py - ULTIMATE MODERN DESIGN WITH ADVANCED EFFECTS (FULLY FIXED)
-# Fully responsive with glass morphism, smooth animations, and interactive elements
+# app.py - Ultimate Professional CIFAR-10 Vision AI
+# Modern Dashboard Design with Glassmorphism & Dark Theme
 
 import streamlit as st
 import torch
@@ -8,7 +8,6 @@ import torch.nn.functional as F
 import torchvision.transforms as transforms
 from PIL import Image
 import matplotlib.pyplot as plt
-import json
 import numpy as np
 from datetime import datetime
 import os
@@ -18,356 +17,482 @@ import os
 # ============================================
 
 st.set_page_config(
-    page_title="CIFAR-10 Vision AI | Advanced Image Classifier",
-    page_icon="🎨",
+    page_title="CIFAR-10 Vision AI | Professional Dashboard",
+    page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # ============================================
-# ADVANCED CUSTOM CSS - GLASS MORPHISM + ANIMATIONS
+# CUSTOM CSS - PROFESSIONAL DARK THEME
 # ============================================
 
 st.markdown("""
 <style>
-    /* Import modern fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap');
-    
-    /* Global styles */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+        --primary: #3b82f6;
+        --primary-light: #60a5fa;
+        --secondary: #8b5cf6;
+        --accent: #06b6d4;
+        --bg-dark: #020617;
+        --bg-card: rgba(15, 23, 42, 0.7);
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --border: rgba(148, 163, 184, 0.1);
+    }
+
     * {
         font-family: 'Inter', sans-serif;
     }
-    
-    /* Hide default Streamlit elements */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    
-    /* Main container */
+
+    /* Hide Streamlit elements */
+    #MainMenu, footer, header, [data-testid="stToolbar"] {
+        visibility: hidden !important;
+    }
+
+    /* Main background */
     .stApp {
-        background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+        background: linear-gradient(135deg, 
+            #020617 0%, 
+            #0f172a 50%, 
+            #1e1b4b 100%);
         background-attachment: fixed;
     }
-    
-    /* Glass morphism card */
-    .glass-card {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(12px);
-        border-radius: 28px;
-        padding: 1.5rem;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
-        transition: all 0.4s ease;
+
+    /* ===== SIDEBAR STYLING ===== */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, 
+            rgba(15, 23, 42, 0.95) 0%, 
+            rgba(2, 6, 23, 0.98) 100%) !important;
+        backdrop-filter: blur(20px);
+        border-right: 1px solid var(--border);
+        min-width: 300px !important;
+        max-width: 300px !important;
     }
-    
-    .glass-card:hover {
-        transform: translateY(-4px);
-        border-color: rgba(168, 237, 234, 0.3);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+
+    [data-testid="stSidebar"] > div:first-child {
+        padding: 2rem 1.5rem !important;
     }
-    
-    /* Hero section */
-    .hero {
-        text-align: center;
-        padding: 1.5rem 0 1rem 0;
-        animation: fadeInDown 0.8s ease-out;
-    }
-    
-    @keyframes fadeInDown {
-        from {
-            opacity: 0;
-            transform: translateY(-30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .hero-title {
-        font-size: 3.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 50%, #ffd6a5 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 0.3rem;
-        letter-spacing: -0.02em;
-        animation: gradientShift 3s ease infinite;
-        background-size: 200% 200%;
-    }
-    
-    @keyframes gradientShift {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-    
-    .hero-subtitle {
-        font-size: 1rem;
-        color: rgba(255, 255, 255, 0.5);
-        font-weight: 400;
-    }
-    
-    /* Section headers */
-    .section-header {
+
+    .sidebar-logo {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border);
     }
-    
-    .section-icon {
+
+    .sidebar-logo-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 1.5rem;
     }
-    
-    .section-title {
+
+    .sidebar-logo-text {
+        font-size: 1.25rem;
         font-weight: 700;
-        font-size: 1.1rem;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
     }
-    
-    .section-subtitle {
-        font-size: 0.7rem;
-        color: rgba(255, 255, 255, 0.4);
-    }
-    
-    /* Result card */
-    .result-card {
-        background: linear-gradient(135deg, rgba(168, 237, 234, 0.15), rgba(254, 214, 227, 0.15));
-        backdrop-filter: blur(12px);
-        border-radius: 28px;
-        padding: 1.5rem;
-        text-align: center;
-        border: 1px solid rgba(168, 237, 234, 0.3);
-        margin-bottom: 1rem;
-        animation: slideInUp 0.6s ease-out;
-    }
-    
-    @keyframes slideInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .prediction {
-        font-size: 2rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #a8edea, #fed6e3);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin: 0;
-    }
-    
-    .confidence {
-        font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.7);
-        margin-top: 0.5rem;
+
+    .sidebar-logo-subtitle {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
         font-weight: 500;
     }
-    
-    /* Metric cards */
-    .metric-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.8rem;
+
+    /* Sidebar sections */
+    .sidebar-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .sidebar-section-title {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 0.75rem;
+        padding-left: 0.5rem;
+    }
+
+    /* Model info card */
+    .model-info-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .model-info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .model-info-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .model-info-label {
+        color: var(--text-secondary);
+    }
+
+    .model-info-value {
+        color: var(--text-primary);
+        font-weight: 600;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .accuracy-badge {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 8px;
+        padding: 0.75rem;
+        text-align: center;
         margin: 1rem 0;
     }
-    
-    .metric-item {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 20px;
-        padding: 0.7rem;
-        text-align: center;
-        transition: all 0.3s ease;
-    }
-    
-    .metric-item:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateY(-3px);
-    }
-    
-    .metric-value {
-        font-size: 1.4rem;
+
+    .accuracy-value {
+        font-size: 1.75rem;
         font-weight: 800;
-        background: linear-gradient(135deg, #a8edea, #fed6e3);
+        background: linear-gradient(135deg, var(--primary-light), var(--secondary));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
-    
-    .metric-label {
-        font-size: 0.65rem;
-        color: rgba(255, 255, 255, 0.5);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-top: 0.3rem;
+
+    .accuracy-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-top: 0.25rem;
     }
-    
-    /* Upload area */
-    .upload-area {
-        border: 2px dashed rgba(168, 237, 234, 0.4);
-        border-radius: 24px;
+
+    /* Classes grid */
+    .classes-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+    }
+
+    .class-item {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.5rem;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        transition: all 0.2s ease;
+        cursor: default;
+    }
+
+    .class-item:hover {
+        background: rgba(59, 130, 246, 0.1);
+        border-color: rgba(59, 130, 246, 0.3);
+        color: var(--text-primary);
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main-content {
+        padding: 2rem 3rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* Header */
+    .dashboard-header {
+        margin-bottom: 2rem;
+    }
+
+    .header-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
+    }
+
+    .header-subtitle {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        font-weight: 400;
+    }
+
+    /* Glass cards */
+    .glass-panel {
+        background: var(--bg-card);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        border-radius: 16px;
         padding: 1.5rem;
-        text-align: center;
-        background: rgba(255, 255, 255, 0.03);
+        height: 100%;
         transition: all 0.3s ease;
     }
-    
-    .upload-area:hover {
-        border-color: #a8edea;
-        background: rgba(168, 237, 234, 0.05);
+
+    .glass-panel:hover {
+        border-color: rgba(59, 130, 246, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
-    
-    /* Image container */
-    .image-container {
-        border-radius: 20px;
+
+    .panel-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .panel-icon {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .panel-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    /* Upload area */
+    .upload-zone {
+        border: 2px dashed rgba(59, 130, 246, 0.3);
+        border-radius: 12px;
+        padding: 2.5rem;
+        text-align: center;
+        background: rgba(59, 130, 246, 0.02);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .upload-zone:hover {
+        border-color: var(--primary);
+        background: rgba(59, 130, 246, 0.05);
+    }
+
+    .upload-icon-large {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.6;
+    }
+
+    .upload-text-main {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .upload-text-sub {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    /* Image preview */
+    .image-preview {
+        border-radius: 12px;
         overflow: hidden;
         background: rgba(0, 0, 0, 0.3);
-        margin-top: 1rem;
+        border: 1px solid var(--border);
     }
-    
-    /* Badge styles */
-    .badge {
-        display: inline-block;
-        padding: 0.25rem 0.7rem;
-        border-radius: 20px;
-        font-size: 0.65rem;
-        font-weight: 500;
-        margin: 0.2rem;
-        background: rgba(168, 237, 234, 0.15);
-        color: #a8edea;
-        border: 1px solid rgba(168, 237, 234, 0.2);
+
+    .image-meta {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+        flex-wrap: wrap;
     }
-    
-    /* Features grid */
-    .features {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 0.8rem;
-        margin: 1.5rem 0;
+
+    .meta-badge {
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 6px;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.75rem;
+        color: var(--primary-light);
+        font-family: 'JetBrains Mono', monospace;
     }
-    
-    .feature-item {
+
+    /* Results */
+    .result-hero {
+        background: linear-gradient(135deg, 
+            rgba(59, 130, 246, 0.15), 
+            rgba(139, 92, 246, 0.15));
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
         text-align: center;
-        padding: 0.8rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .result-class {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .result-confidence {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .confidence-bar {
+        margin: 1rem 0;
+    }
+
+    /* Top predictions */
+    .predictions-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .prediction-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
         background: rgba(255, 255, 255, 0.03);
-        border-radius: 20px;
-        transition: all 0.3s ease;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        transition: all 0.2s ease;
     }
-    
-    .feature-item:hover {
-        background: rgba(255, 255, 255, 0.07);
-        transform: translateY(-3px);
+
+    .prediction-item:hover {
+        background: rgba(59, 130, 246, 0.05);
+        border-color: rgba(59, 130, 246, 0.2);
     }
-    
-    .feature-icon {
-        font-size: 1.5rem;
-        margin-bottom: 0.3rem;
-        display: inline-block;
+
+    .prediction-item.top {
+        background: rgba(59, 130, 246, 0.1);
+        border-color: rgba(59, 130, 246, 0.3);
     }
-    
-    .feature-title {
+
+    .pred-rank {
+        width: 28px;
+        height: 28px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 0.75rem;
         font-weight: 700;
+        color: var(--text-secondary);
+    }
+
+    .pred-rank.top {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
         color: white;
-        margin-bottom: 0.1rem;
     }
-    
-    .feature-desc {
-        font-size: 0.6rem;
-        color: rgba(255, 255, 255, 0.4);
+
+    .pred-icon {
+        font-size: 1.25rem;
     }
-    
-    /* Sidebar styling */
-    [data-testid="stSidebar"] {
-        background: rgba(15, 12, 41, 0.95);
-        backdrop-filter: blur(10px);
-        border-right: 1px solid rgba(255, 255, 255, 0.05);
+
+    .pred-name {
+        flex: 1;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-primary);
     }
-    
+
+    .pred-prob {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--primary-light);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Stats grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    .stat-box {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.75rem;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 0.25rem;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--text-secondary);
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
     /* Progress bar */
     .stProgress > div > div {
-        background: linear-gradient(90deg, #a8edea, #fed6e3);
-        border-radius: 20px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary)) !important;
+        border-radius: 4px !important;
     }
-    
-    /* Button */
-    .stButton > button {
-        background: linear-gradient(135deg, #a8edea, #fed6e3);
-        color: #1a1a2e;
-        border: none;
-        border-radius: 40px;
-        padding: 0.5rem 1.2rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        width: 100%;
+
+    .stProgress > div {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-radius: 4px !important;
+        height: 6px !important;
     }
-    
-    .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 20px rgba(168, 237, 234, 0.3);
-    }
-    
-    /* File uploader */
-    .stFileUploader {
-        width: 100%;
-    }
-    
+
     /* Footer */
-    .footer {
+    .dashboard-footer {
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
         text-align: center;
-        padding: 1.5rem;
-        color: rgba(255, 255, 255, 0.3);
-        font-size: 0.7rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        margin-top: 1.5rem;
+        color: var(--text-secondary);
+        font-size: 0.8rem;
     }
-    
+
     /* Responsive */
-    @media (max-width: 992px) {
-        .hero-title { font-size: 2.5rem; }
-        .prediction { font-size: 1.6rem; }
-        .metric-value { font-size: 1.2rem; }
-    }
-    
-    @media (max-width: 768px) {
-        .hero-title { font-size: 1.8rem; }
-        .hero-subtitle { font-size: 0.8rem; }
-        .prediction { font-size: 1.3rem; }
-        .features { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
-        .glass-card { padding: 1rem; }
-        .metric-grid { gap: 0.5rem; }
-    }
-    
-    @media (max-width: 480px) {
-        .hero-title { font-size: 1.4rem; }
-        .prediction { font-size: 1.1rem; }
-        .features { grid-template-columns: 1fr; }
-        .metric-grid { grid-template-columns: 1fr; gap: 0.5rem; }
-    }
-    
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-    }
-    
-    ::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 10px;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-        background: linear-gradient(135deg, #a8edea, #fed6e3);
-        border-radius: 10px;
+    @media (max-width: 1024px) {
+        .main-content {
+            padding: 1.5rem;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -379,98 +504,22 @@ st.markdown("""
 CIFAR_MEAN = (0.4914, 0.4822, 0.4465)
 CIFAR_STD = (0.2470, 0.2435, 0.2616)
 
-# Enhanced class names with emojis and descriptions
 CLASSES = [
-    {'name': 'Plane', 'emoji': '✈️', 'desc': 'Aircraft / Airplane', 'color': '#a8edea'},
-    {'name': 'Car', 'emoji': '🚗', 'desc': 'Automobile / Sedan', 'color': '#90ee90'},
-    {'name': 'Bird', 'emoji': '🐦', 'desc': 'Bird species', 'color': '#ffb347'},
-    {'name': 'Cat', 'emoji': '🐱', 'desc': 'Feline / Cat', 'color': '#ff6b6b'},
-    {'name': 'Deer', 'emoji': '🦌', 'desc': 'Wild deer', 'color': '#d4a5a5'},
-    {'name': 'Dog', 'emoji': '🐕', 'desc': 'Canine / Dog', 'color': '#c9a0dc'},
-    {'name': 'Frog', 'emoji': '🐸', 'desc': 'Amphibian / Frog', 'color': '#7dd3fc'},
-    {'name': 'Horse', 'emoji': '🐴', 'desc': 'Equine / Horse', 'color': '#f0a3a3'},
-    {'name': 'Ship', 'emoji': '🚢', 'desc': 'Vessel / Ship', 'color': '#5dade2'},
-    {'name': 'Truck', 'emoji': '🚛', 'desc': 'Heavy vehicle', 'color': '#e5989b'}
+    ('🛩️', 'Airplane'),
+    ('🚗', 'Automobile'),
+    ('🐦', 'Bird'),
+    ('🐱', 'Cat'),
+    ('🦌', 'Deer'),
+    ('🐕', 'Dog'),
+    ('🐸', 'Frog'),
+    ('🐴', 'Horse'),
+    ('🚢', 'Ship'),
+    ('🚛', 'Truck')
 ]
-
-CLASS_NAMES = [f"{c['emoji']} {c['name']}" for c in CLASSES]
 
 # ============================================
 # MODEL DEFINITIONS
 # ============================================
-
-class ANN(nn.Module):
-    def __init__(self, dropout_rate=0.3):
-        super(ANN, self).__init__()
-        self.flatten = nn.Flatten()
-        self.fc1 = nn.Linear(32*32*3, 1024)
-        self.bn1 = nn.BatchNorm1d(1024)
-        self.dropout1 = nn.Dropout(dropout_rate)
-        self.fc2 = nn.Linear(1024, 512)
-        self.bn2 = nn.BatchNorm1d(512)
-        self.dropout2 = nn.Dropout(dropout_rate)
-        self.fc3 = nn.Linear(512, 256)
-        self.bn3 = nn.BatchNorm1d(256)
-        self.dropout3 = nn.Dropout(dropout_rate)
-        self.fc4 = nn.Linear(256, 10)
-        self.relu = nn.ReLU()
-
-    def forward(self, x):
-        x = self.flatten(x)
-        x = self.relu(self.bn1(self.fc1(x)))
-        x = self.dropout1(x)
-        x = self.relu(self.bn2(self.fc2(x)))
-        x = self.dropout2(x)
-        x = self.relu(self.bn3(self.fc3(x)))
-        x = self.dropout3(x)
-        x = self.fc4(x)
-        return x
-
-class CNN(nn.Module):
-    def __init__(self, dropout_rate=0.3):
-        super(CNN, self).__init__()
-        self.conv1 = nn.Conv2d(3, 32, 3, padding=1)
-        self.bn1 = nn.BatchNorm2d(32)
-        self.conv2 = nn.Conv2d(32, 64, 3, padding=1)
-        self.bn2 = nn.BatchNorm2d(64)
-        self.pool1 = nn.MaxPool2d(2, 2)
-        self.dropout1 = nn.Dropout2d(dropout_rate/2)
-        self.conv3 = nn.Conv2d(64, 128, 3, padding=1)
-        self.bn3 = nn.BatchNorm2d(128)
-        self.conv4 = nn.Conv2d(128, 128, 3, padding=1)
-        self.bn4 = nn.BatchNorm2d(128)
-        self.pool2 = nn.MaxPool2d(2, 2)
-        self.dropout2 = nn.Dropout2d(dropout_rate/2)
-        self.conv5 = nn.Conv2d(128, 256, 3, padding=1)
-        self.bn5 = nn.BatchNorm2d(256)
-        self.conv6 = nn.Conv2d(256, 256, 3, padding=1)
-        self.bn6 = nn.BatchNorm2d(256)
-        self.pool3 = nn.MaxPool2d(2, 2)
-        self.dropout3 = nn.Dropout2d(dropout_rate)
-        self.fc1 = nn.Linear(256 * 4 * 4, 512)
-        self.bn7 = nn.BatchNorm1d(512)
-        self.dropout4 = nn.Dropout(dropout_rate)
-        self.fc2 = nn.Linear(512, 10)
-        self.relu = nn.ReLU()
-
-    def forward(self, x):
-        x = self.relu(self.bn1(self.conv1(x)))
-        x = self.relu(self.bn2(self.conv2(x)))
-        x = self.pool1(x)
-        x = self.dropout1(x)
-        x = self.relu(self.bn3(self.conv3(x)))
-        x = self.relu(self.bn4(self.conv4(x)))
-        x = self.pool2(x)
-        x = self.dropout2(x)
-        x = self.relu(self.bn5(self.conv5(x)))
-        x = self.relu(self.bn6(self.conv6(x)))
-        x = self.pool3(x)
-        x = self.dropout3(x)
-        x = x.view(x.size(0), -1)
-        x = self.relu(self.bn7(self.fc1(x)))
-        x = self.dropout4(x)
-        x = self.fc2(x)
-        return x
 
 class ResidualBlock(nn.Module):
     def __init__(self, in_channels, out_channels, stride=1, dropout_rate=0.3):
@@ -497,6 +546,7 @@ class ResidualBlock(nn.Module):
         out += self.shortcut(x)
         out = self.relu(out)
         return out
+
 
 class AdvancedCNN(nn.Module):
     def __init__(self, num_classes=10, dropout_rate=0.3):
@@ -531,47 +581,32 @@ class AdvancedCNN(nn.Module):
         x = self.fc(x)
         return x
 
+
 # ============================================
 # MODEL LOADING
 # ============================================
 
-@st.cache_resource
+@st.cache_resource(show_spinner=False)
 def load_model():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    
     model = AdvancedCNN(num_classes=10, dropout_rate=0.4)
-    
+
     if os.path.exists('saved_models/best_model.pth'):
         try:
             checkpoint = torch.load('saved_models/best_model.pth', map_location=device)
-            
-            if 'model_state_dict' in checkpoint:
-                state_dict = checkpoint['model_state_dict']
-            else:
-                state_dict = checkpoint
-            
-            new_state_dict = {}
-            for key, value in state_dict.items():
-                new_key = key.replace('module.', '')
-                new_state_dict[new_key] = value
-            
+            state_dict = checkpoint.get('model_state_dict', checkpoint)
+            new_state_dict = {k.replace('module.', ''): v for k, v in state_dict.items()}
             model.load_state_dict(new_state_dict)
-            
-            accuracy = checkpoint.get('test_accuracy', 89.05)
-            if isinstance(accuracy, (float, int)):
-                accuracy = float(accuracy)
-            else:
-                accuracy = 89.05
-                
+            accuracy = float(checkpoint.get('test_accuracy', 89.05))
         except Exception as e:
             accuracy = 89.05
     else:
         accuracy = 89.05
-    
+
     model = model.to(device)
     model.eval()
-    
-    return model, device, "AdvancedCNN", accuracy
+    return model, device, "ResNet-18", accuracy
+
 
 def preprocess_image(image):
     transform = transforms.Compose([
@@ -581,287 +616,303 @@ def preprocess_image(image):
     ])
     return transform(image).unsqueeze(0)
 
-# ============================================
-# LOAD MODEL
-# ============================================
-
-model, device, model_name, best_acc = load_model()
 
 # ============================================
-# SIDEBAR
+# SIDEBAR COMPONENT
 # ============================================
 
-with st.sidebar:
+def render_sidebar():
+    """Professional sidebar with model info and classes"""
+
+    # Logo section
     st.markdown("""
-    <div style="text-align: center; padding: 1rem 0;">
-        <div style="font-size: 2rem;">🎨</div>
-        <div style="font-weight: 700; font-size: 1.1rem; background: linear-gradient(135deg, #a8edea, #fed6e3); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CIFAR-10 Vision</div>
-        <div style="font-size: 0.65rem; color: rgba(255,255,255,0.4);">Advanced Classification</div>
+    <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">🧠</div>
+        <div>
+            <div class="sidebar-logo-text">Vision AI</div>
+            <div class="sidebar-logo-subtitle">CIFAR-10 Classifier</div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
-    
-    st.markdown("---")
-    
-    # Model info
-    st.markdown("### 🤖 Model")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown(f"""
-        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 0.4rem; text-align: center;">
-            <div style="font-size: 0.55rem; color: rgba(255,255,255,0.4);">Architecture</div>
-            <div style="font-weight: 700; font-size: 0.8rem;">{model_name}</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with col2:
-        st.markdown(f"""
-        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 0.4rem; text-align: center;">
-            <div style="font-size: 0.55rem; color: rgba(255,255,255,0.4);">Accuracy</div>
-            <div style="font-weight: 700; font-size: 0.8rem; color: #a8edea;">{best_acc:.1f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    st.markdown("---")
-    
-    # Supported classes
-    st.markdown("### 📋 Classes")
-    for i, cls in enumerate(CLASSES):
-        st.markdown(f"""
-        <div style="background: rgba(100,100,150,0.15); border-radius: 10px; padding: 0.2rem 0.5rem; margin: 0.2rem 0; border-left: 2px solid {cls['color']};">
-            <span style="font-size: 0.9rem;">{cls['emoji']}</span>
-            <span style="font-size: 0.7rem; font-weight: 500;">{cls['name']}</span>
-            <span style="font-size: 0.6rem; color: rgba(255,255,255,0.35); display: block;">{cls['desc']}</span>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    st.markdown("---")
-    
-    # Stats
-    st.markdown("### 📊 Dataset")
-    st.metric("Training", "50,000")
-    st.metric("Testing", "10,000")
-    st.metric("Size", "32×32 px")
-    
-    st.markdown("---")
-    st.caption(f"⚡ PyTorch • Streamlit\n📅 {datetime.now().strftime('%B %Y')}")
 
-# ============================================
-# MAIN CONTENT
-# ============================================
+    # Model Performance Section
+    st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
+    st.markdown('<div class="sidebar-section-title">Model Performance</div>', unsafe_allow_html=True)
 
-# Hero Section
-st.markdown("""
-<div class="hero">
-    <div class="hero-title">visual intelligence</div>
-    <div class="hero-subtitle">advanced deep learning for CIFAR-10 image classification</div>
-</div>
-""", unsafe_allow_html=True)
-
-# Main columns
-col_left, col_right = st.columns([1, 1], gap="large")
-
-with col_left:
-    st.markdown("""
-    <div class="glass-card">
-        <div class="section-header">
-            <span class="section-icon">📸</span>
-            <div>
-                <div class="section-title">Upload Image</div>
-                <div class="section-subtitle">Supported: JPG, PNG, JPEG</div>
-            </div>
-        </div>
+    st.markdown(f"""
+    <div class="accuracy-badge">
+        <div class="accuracy-value">{best_acc:.1f}%</div>
+        <div class="accuracy-label">Test Accuracy</div>
+    </div>
     """, unsafe_allow_html=True)
-    
-    uploaded = st.file_uploader("", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
-    
-    if uploaded:
-        image = Image.open(uploaded).convert('RGB')
-        
-        st.markdown('<div class="image-container">', unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="model-info-card">
+        <div class="model-info-row">
+            <span class="model-info-label">Architecture</span>
+            <span class="model-info-value">ResNet-18</span>
+        </div>
+        <div class="model-info-row">
+            <span class="model-info-label">Parameters</span>
+            <span class="model-info-value">11.2M</span>
+        </div>
+        <div class="model-info-row">
+            <span class="model-info-label">Input Size</span>
+            <span class="model-info-value">32×32×3</span>
+        </div>
+        <div class="model-info-row">
+            <span class="model-info-label">Device</span>
+            <span class="model-info-value">{}</span>
+        </div>
+    </div>
+    """.format(device.type.upper()), unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Model Description Section
+    st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
+    st.markdown('<div class="sidebar-section-title">About Model</div>', unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.6; margin-bottom: 1rem;">
+        Deep residual learning framework with skip connections. 
+        Features batch normalization and dropout regularization 
+        for improved generalization on CIFAR-10 dataset.
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Supported Classes Section
+    st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
+    st.markdown('<div class="sidebar-section-title">Supported Classes</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="classes-grid">', unsafe_allow_html=True)
+    for emoji, name in CLASSES:
+        st.markdown(f'<div class="class-item">{emoji} {name}</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Footer
+    st.markdown("""
+    <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(148, 163, 184, 0.1);">
+        <div style="font-size: 0.75rem; color: #64748b; text-align: center;">
+            PyTorch {} • Streamlit<br>
+            © {} Vision AI
+        </div>
+    </div>
+    """.format(torch.__version__, datetime.now().year), unsafe_allow_html=True)
+
+
+# ============================================
+# MAIN DASHBOARD COMPONENTS
+# ============================================
+
+def render_header():
+    """Dashboard header"""
+    st.markdown("""
+    <div class="dashboard-header">
+        <div class="header-title">Image Classification Dashboard</div>
+        <div class="header-subtitle">Upload an image to classify it into one of 10 CIFAR-10 categories</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+def render_upload_panel():
+    """Upload panel component"""
+    st.markdown("""
+    <div class="panel-header">
+        <div class="panel-icon">📸</div>
+        <div class="panel-title">Upload Image</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    uploaded_file = st.file_uploader(
+        "",
+        type=["jpg", "jpeg", "png"],
+        label_visibility="collapsed",
+        key="uploader"
+    )
+
+    if uploaded_file is None:
+        st.markdown("""
+        <div class="upload-zone">
+            <div class="upload-icon-large">📤</div>
+            <div class="upload-text-main">Drop image here or click to browse</div>
+            <div class="upload-text-sub">Supports JPG, PNG up to 10MB</div>
+        </div>
+        """, unsafe_allow_html=True)
+        return None
+
+    try:
+        image = Image.open(uploaded_file).convert('RGB')
+
+        # Store in session state
+        st.session_state['current_image'] = image
+        st.session_state['current_file'] = uploaded_file
+
+        # Display preview
+        st.markdown('<div class="image-preview">', unsafe_allow_html=True)
         st.image(image, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
-        
-        # Image info
-        file_size = len(uploaded.getvalue()) / 1024
+
+        # Metadata
+        uploaded_file.seek(0, 2)
+        file_size = uploaded_file.tell()
+        uploaded_file.seek(0)
+
         st.markdown(f"""
-        <div style="display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.8rem;">
-            <span class="badge">📏 {image.size[0]}×{image.size[1]}px</span>
-            <span class="badge">💾 {file_size:.1f} KB</span>
-            <span class="badge">🎨 {image.mode}</span>
+        <div class="image-meta">
+            <span class="meta-badge">{image.size[0]}×{image.size[1]} px</span>
+            <span class="meta-badge">{image.mode}</span>
+            <span class="meta-badge">{file_size/1024:.1f} KB</span>
         </div>
         """, unsafe_allow_html=True)
-    
-    st.markdown('</div>', unsafe_allow_html=True)
 
-with col_right:
+        return image
+
+    except Exception as e:
+        st.error(f"Error loading image: {str(e)}")
+        return None
+
+
+def render_results_panel():
+    """Results panel component"""
     st.markdown("""
-    <div class="glass-card">
-        <div class="section-header">
-            <span class="section-icon">🎯</span>
-            <div>
-                <div class="section-title">Prediction Result</div>
-                <div class="section-subtitle">Real-time AI inference</div>
-            </div>
-        </div>
+    <div class="panel-header">
+        <div class="panel-icon">🎯</div>
+        <div class="panel-title">Classification Results</div>
+    </div>
     """, unsafe_allow_html=True)
-    
-    if uploaded:
-        with st.spinner("Analyzing image..."):
-            tensor = preprocess_image(image).to(device)
-            with torch.no_grad():
-                out = model(tensor)
-                probs = F.softmax(out, dim=1)
-                pred = torch.argmax(probs, dim=1).item()
-                conf = probs[0][pred].item()
-                all_probs = probs[0].cpu().numpy()
-        
-        predicted_class = CLASSES[pred]
-        st.markdown(f"""
-        <div class="result-card">
-            <div style="font-size: 2.5rem; margin-bottom: 0.3rem;">{predicted_class['emoji']}</div>
-            <div class="prediction">{predicted_class['name']}</div>
-            <div class="confidence">confidence {conf*100:.2f}%</div>
-            <div style="font-size: 0.65rem; color: rgba(255,255,255,0.4); margin-top: 0.2rem;">{predicted_class['desc']}</div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Confidence gauge
-        st.markdown("#### Confidence")
-        st.progress(conf)
-        
-        # Metrics
-        st.markdown('<div class="metric-grid">', unsafe_allow_html=True)
-        
-        m1, m2, m3 = st.columns(3)
-        m1.markdown(f"""
-        <div class="metric-item">
-            <div class="metric-value">{conf*100:.1f}%</div>
-            <div class="metric-label">Confidence</div>
-        </div>
-        """, unsafe_allow_html=True)
-        m2.markdown(f"""
-        <div class="metric-item">
-            <div class="metric-value">{model_name.split('_')[0]}</div>
-            <div class="metric-label">Architecture</div>
-        </div>
-        """, unsafe_allow_html=True)
-        m3.markdown(f"""
-        <div class="metric-item">
-            <div class="metric-value">{best_acc:.1f}%</div>
-            <div class="metric-label">Model Acc</div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        # ============================================
-        # IMPROVED PROBABILITY CHART - TOP 5 CLASSES ONLY
-        # ============================================
-        st.markdown("#### Top 5 Predictions")
-        
-        # Get top 5 indices
-        top_5_indices = np.argsort(all_probs)[-5:][::-1]
-        
-        # Create data for top 5
-        top_5_names = [CLASS_NAMES[i] for i in top_5_indices]
-        top_5_probs = [all_probs[i] * 100 for i in top_5_indices]
-        top_5_colors = [CLASSES[i]['color'] for i in top_5_indices]
-        
-        # Create horizontal bar chart
-        fig, ax = plt.subplots(figsize=(8, 3.5))
-        
-        # Create bars
-        bars = ax.barh(top_5_names, top_5_probs, color=top_5_colors, height=0.6, edgecolor='none')
-        
-        # Customize chart
-        ax.set_xlim(0, 100)
-        ax.set_xlabel('Probability (%)', fontsize=9, color='white')
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.spines['left'].set_color('#888888')
-        ax.spines['bottom'].set_color('#888888')
-        ax.tick_params(axis='y', labelsize=9, colors='white')
-        ax.tick_params(axis='x', labelsize=8, colors='#aaaaaa')
-        ax.set_facecolor('#1a1a2e')
-        fig.patch.set_facecolor('#1a1a2e')
-        
-        # Add value labels
-        for bar, prob in zip(bars, top_5_probs):
-            if prob > 5:
-                ax.text(bar.get_width() + 1, bar.get_y() + bar.get_height()/2, 
-                       f'{prob:.1f}%', va='center', fontsize=8, fontweight='500', color='#a8edea')
-        
-        plt.tight_layout()
-        st.pyplot(fig)
-        
-        # Simple list view for all classes (compact)
-        with st.expander("View all 10 class probabilities"):
-            for i, cls in enumerate(CLASSES):
-                prob_val = all_probs[i] * 100
-                st.markdown(f"""
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.3rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <div>
-                        <span style="font-size: 1rem;">{cls['emoji']}</span>
-                        <span style="font-size: 0.8rem; margin-left: 0.5rem;">{cls['name']}</span>
-                    </div>
-                    <div style="font-weight: 600; color: {'#a8edea' if i == pred else 'rgba(255,255,255,0.6)'};">{prob_val:.1f}%</div>
-                </div>
-                <div style="background: rgba(255,255,255,0.1); border-radius: 10px; height: 3px; margin: 0.2rem 0;">
-                    <div style="width: {prob_val}%; height: 100%; background: linear-gradient(90deg, {cls['color']}, #a8edea); border-radius: 10px;"></div>
-                </div>
-                """, unsafe_allow_html=True)
-        
-    else:
+
+    if 'current_image' not in st.session_state:
         st.markdown("""
-        <div style="text-align: center; padding: 2rem 1rem;">
-            <div style="font-size: 3rem; opacity: 0.4; margin-bottom: 0.8rem;">🖼️</div>
-            <div style="font-weight: 600; margin-bottom: 0.3rem;">No Image Selected</div>
-            <div style="font-size: 0.7rem; color: rgba(255,255,255,0.35);">
-                Upload an image from the left panel
+        <div class="empty-state">
+            <div class="empty-icon">📊</div>
+            <div>Upload an image to see classification results</div>
+        </div>
+        """, unsafe_allow_html=True)
+        return
+
+    try:
+        with st.spinner("Analyzing..."):
+            image = st.session_state['current_image']
+            tensor = preprocess_image(image).to(device)
+
+            with torch.no_grad():
+                output = model(tensor)
+                probabilities = F.softmax(output, dim=1)
+                pred_idx = torch.argmax(probabilities, dim=1).item()
+                confidence = probabilities[0][pred_idx].item()
+                all_probs = probabilities[0].cpu().numpy()
+
+        emoji, name = CLASSES[pred_idx]
+
+        # Main result
+        st.markdown(f"""
+        <div class="result-hero">
+            <div class="result-class">{emoji} {name}</div>
+            <div class="result-confidence">Confidence: {confidence*100:.1f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Confidence bar
+        st.markdown("<div class="confidence-bar">", unsafe_allow_html=True)
+        st.progress(confidence)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        # Stats
+        st.markdown(f"""
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-value">{confidence*100:.0f}%</div>
+                <div class="stat-label">Confidence</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">{model_name}</div>
+                <div class="stat-label">Model</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">{best_acc:.0f}%</div>
+                <div class="stat-label">Accuracy</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
-    
+
+        # Top 3 predictions
+        st.markdown("**🏆 Top 3 Predictions**")
+
+        top3_indices = np.argsort(all_probs)[-3:][::-1]
+
+        st.markdown('<div class="predictions-list">', unsafe_allow_html=True)
+        for rank, idx in enumerate(top3_indices, 1):
+            emoji, name = CLASSES[idx]
+            prob = all_probs[idx]
+            is_top = rank == 1
+
+            rank_class = "top" if is_top else ""
+            rank_badge = "top" if is_top else ""
+
+            st.markdown(f"""
+            <div class="prediction-item {rank_class}">
+                <div class="pred-rank {rank_badge}">#{rank}</div>
+                <div class="pred-icon">{emoji}</div>
+                <div class="pred-name">{name}</div>
+                <div class="pred-prob">{prob*100:.1f}%</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    except Exception as e:
+        st.error(f"Prediction error: {str(e)}")
+
+
+def render_footer():
+    """Dashboard footer"""
+    st.markdown("""
+    <div class="dashboard-footer">
+        <p>CIFAR-10 Vision AI • Built with PyTorch & Streamlit</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+# ============================================
+# MAIN APPLICATION
+# ============================================
+
+# Load model
+try:
+    model, device, model_name, best_acc = load_model()
+except Exception as e:
+    st.error(f"Failed to load model: {str(e)}")
+    st.stop()
+
+# Render sidebar
+with st.sidebar:
+    render_sidebar()
+
+# Main content
+st.markdown('<div class="main-content">', unsafe_allow_html=True)
+
+# Header
+render_header()
+
+# Two column layout
+col1, col2 = st.columns([1, 1], gap="large")
+
+with col1:
+    st.markdown('<div class="glass-panel">', unsafe_allow_html=True)
+    render_upload_panel()
     st.markdown('</div>', unsafe_allow_html=True)
 
-# Features Section
-st.markdown("""
-<div style="text-align: center; margin: 1rem 0 0.5rem 0;">
-    <div style="font-weight: 700; font-size: 1.2rem; background: linear-gradient(135deg, #a8edea, #fed6e3); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Key Features</div>
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown('<div class="features">', unsafe_allow_html=True)
-
-features = [
-    {'icon': '🧠', 'title': 'Deep Learning', 'desc': 'CNN Architecture'},
-    {'icon': '⚡', 'title': 'Real-time', 'desc': 'Fast Inference'},
-    {'icon': '🎯', 'title': 'High Accuracy', 'desc': '89%+ Accuracy'},
-    {'icon': '📱', 'title': 'Responsive', 'desc': 'Mobile Ready'},
-    {'icon': '🔬', 'title': 'Advanced', 'desc': 'Transfer Learning'},
-    {'icon': '🎨', 'title': 'Modern UI', 'desc': 'Glass Design'},
-    {'icon': '📊', 'title': 'Top-5', 'desc': 'Smart Display'},
-    {'icon': '🛡️', 'title': 'Robust', 'desc': 'Error Handling'}
-]
-
-for i in range(0, len(features), 4):
-    cols = st.columns(4)
-    for j, col in enumerate(cols):
-        if i + j < len(features):
-            f = features[i + j]
-            with col:
-                st.markdown(f"""
-                <div class="feature-item">
-                    <div class="feature-icon">{f['icon']}</div>
-                    <div class="feature-title">{f['title']}</div>
-                    <div class="feature-desc">{f['desc']}</div>
-                </div>
-                """, unsafe_allow_html=True)
-
-st.markdown('</div>', unsafe_allow_html=True)
+with col2:
+    st.markdown('<div class="glass-panel">', unsafe_allow_html=True)
+    render_results_panel()
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Footer
-st.markdown(f"""
-<div class="footer">
-    CIFAR-10 Dataset • {model_name} Architecture • Deployed with Streamlit
-</div>
-""", unsafe_allow_html=True)
+render_footer()
+
+st.markdown('</div>', unsafe_allow_html=True)
