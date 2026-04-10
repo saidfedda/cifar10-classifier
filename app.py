@@ -873,7 +873,7 @@ with col_left:
             <span class="section-icon">📸</span>
             <div>
                 <div class="section-title">Upload Image</div>
-                <div class="section-subtitle">Supported: JPG, PNG, JPEG (Max 5MB)</div>
+                <div class="section-subtitle">Supported: JPG, PNG, JPEG </div>
             </div>
         </div>
     """, unsafe_allow_html=True)
